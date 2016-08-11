@@ -12,10 +12,10 @@
   - Le github: www.github.com/Zizibaluba
   - Le biographie: 3 serious 5 satire, so I make my own (that no one understands). Wants to be grow up to be an Internet Detective. See also:  Japan-o-phile, foodie, gamer, librarian, and coder.
 - Christopher Pourier
-  - Le facebook
-  - Le instagram
-  - Le github
-  - Le biographie
+  - La [website] (http://corez.nl/) (its outdated and simple af doe)
+  - La [linkedin] (https://an.linkedin.com/in/christopher-pourier-81042828)
+  - La [github] (https://github.com/corez92)
+  - La biografia: Yo soy yo. 
 - Adrian Hintermaier
   - Le [github](https://github.com/Mester)
   - Le [linkedin](https://se.linkedin.com/in/adrianhintermaier)
