@@ -26,16 +26,16 @@
 TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of players through whispers, and is entertaining through the often very distorted message at the end. TeleGiphy is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of whispers to distort messages. 
 
 ## Purpose/Goals
-To create an enjoyable social experience through a simple party game.
-To allow for an asynchronous experience in social contexts.
-Usage of the giphy platform 
+- To create an enjoyable social experience through a simple party game.
+- To allow for an asynchronous experience in social contexts.
+- Usage of the giphy platform 
 
 ## Business Requirements (App features?)
 
 
 ## Technology Requirements
-Uses the Django framework (?)
-Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
+- Uses the Django framework (?)
+- Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
 
 
 
