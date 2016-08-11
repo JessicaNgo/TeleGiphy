@@ -2,9 +2,9 @@
 
 ##Team Members:
 - Jessica Ngo
-  - Le facebook: https://www.facebook.com/jessica.ngo.1069 
-  - Le instagram: I only use mine to look at doges
-  - Le github: https://github.com/JessicaNgo 
+  - Le [github](https://github.com/JessicaNgo )
+  - Le [linkedin](https://ca.linkedin.com/in/ngojessica)
+  - Le [facebook](https://www.facebook.com/jessica.ngo.1069)
   - Le biographie: I am an avid doge lover and code writer
 - Brian Wu
   - Le facebook: www.facebook.com/poenbwu 
@@ -34,10 +34,37 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 
 
 ## Technology Requirements
-- Uses the Django framework (?)
+- Uses the Django/Flask framework (?)
 - Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
 
 
 
 
 ## Simple Flow of a Normal TeleGiphy Game
+
+HOME PAGE:
+
+get page, should have create a game, 
+choose local or online, 
+goes to GAME LOBBY
+
+GAME LOBBY
+create unique link for game, 
+can link for other people to join, (maximum number?)
+button for GAME START
+
+GAME START: 
+randomize order of players, no new players can join now
+each turn is 20 seconds? DING sound?
+FIRST PLAYER: sees word and makes giphy based off of that
+NEXT PLAYER: guesses word off that giphy, makes another giphy
+NEXT PLAYER: repeats above steps
+. 
+.
+.
+LAST PLAYER: guesses word from giphy, check if word is right, if it is give a giphy trophy.
+otherwise, give some funny gif or meme, and then goes to game summary
+
+GAME SUMMARY:
+then displays each persons' guess for each turn and a giphy
+
