@@ -31,10 +31,17 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 - Usage of the giphy platform 
 
 ## Business Requirements (App features?)
+- A user must be able to create an active game where other players may join by a URL link.
+- The game will be able to be played asynchronously, with different clients, with the states of the game tracked by the app.
+- A UI will be created to abide by the [game flow](https://github.com/JessicaNgo/TeleGiphy/wiki/Game-Flow) and [gameplay](https://github.com/JessicaNgo/TeleGiphy/wiki/Gameplay) as outlined in the wiki.
+
+## Secondary Goals
+- Client needs to be able to see other clients within the game, and be directed to the next round/aspect of the game.
+- Chat; potentially acts to provide the functionality as above.
 
 
 ## Technology Requirements
-- Uses the Django/Flask framework (?)
+- Uses the Flask/django framework
 - Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
 
 
