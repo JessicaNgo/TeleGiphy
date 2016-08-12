@@ -7,9 +7,9 @@
   - Le [facebook](https://www.facebook.com/jessica.ngo.1069)
   - Le biographie: I am an avid doge lover and code writer
 - Brian Wu
-  - Le facebook: www.facebook.com/poenbwu 
-  - Le instagram: brie_wu
-  - Le github: www.github.com/Zizibaluba
+  - Le [facebook](www.facebook.com/poenbwu)
+  - Le [linkedin](www.linkedin.com/poenbrianwu)
+  - Le [github](www.github.com/Zizibaluba)
   - Le biographie: 3 serious 5 satire, so I make my own (that no one understands). Wants to be grow up to be an Internet Detective. See also:  Japan-o-phile, foodie, gamer, librarian, and coder.
 - Christopher Pourier
   - La [website] (http://corez.nl/) (its outdated and simple af doe)
@@ -45,8 +45,6 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 - Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
 
 
-
-
 ## Simple Flow of a Normal TeleGiphy Game
 
 HOME PAGE:
