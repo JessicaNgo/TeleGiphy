@@ -41,22 +41,18 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 
 
 ## Technology Requirements
-- Uses the Flask/django framework
-- Uses the Giphy API: https://github.com/Giphy/GiphyAPI 
+- django framework
+- [Giphy API](https://github.com/Giphy/GiphyAPI)
+- Bootstrap (?)
 
+## TeleGiphy UI
+- HOME PAGE
+# Create game
+# Join game by token
 
-## Simple Flow of a Normal TeleGiphy Game
-
-HOME PAGE:
-
-get page, should have create a game, 
-choose local or online, 
-goes to GAME LOBBY
-
-GAME LOBBY
-create unique link for game, 
-can link for other people to join, (maximum number?)
-button for GAME START
+- GAME LOBBY
+# Shows game token/link
+# Button for GAME START
 
 GAME START: 
 randomize order of players, no new players can join now
