@@ -90,3 +90,4 @@ ENV/
 
 # cloud9
 .~c9*
+db.sqlite3
