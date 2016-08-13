@@ -17,11 +17,12 @@ when selecting gifs instead of whispers to distort messages.
 ```bash
 $ mkvirtualenv tele-giphy -p $(which python3)
 $ echo "export OLD_PYTHONPATH=\${PYTHONPATH}" >> $WORKON_HOME/tele-giphy/bin/postactivate
-$ echo "export DJANGO_SETTINGS_MODULE=tele_giphy.settings" >> $WORKON_HOME/tele-giphy/bin/postactivate
+$ echo "export DJANGO_SETTINGS_MODULE=tele_giphy.settings.local" >> $WORKON_HOME/tele-giphy/bin/postactivate
 $ echo "export PYTHONPATH=tele_giphy:\${PYTHONPATH}" >> $WORKON_HOME/tele-giphy/bin/postactivate
 $ echo "unset DJANGO_SETTINGS_MODULE" >> $WORKON_HOME/tele-giphy/bin/postdeactivate 
 $ echo "export PYTHONPATH=\${OLD_PYTHONPATH}" >> $WORKON_HOME/tele-giphy/bin/postdeactivate 
-$ echo "unset OLD_PYTHONPATH" >> $WORKON_HOME/tele-giphy/bin/postdeactivate 
+$ echo "unset OLD_PYTHONPATH" >> $WORKON_HOME/tele-giphy/bin/postdeactivate
+$ echo pip install -r requirements/local.txt
 $ django-admin migrate
 ```
 
