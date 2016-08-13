@@ -51,25 +51,24 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 
 ## TeleGiphy UI
 - HOME PAGE
-# Create game
-# Join game by token
+-- Create game
+-- Join game by token
 
 - GAME LOBBY
-# Shows game token/link
-# Button for GAME START
+-- Shows game token/link
+-- Button for GAME START
 
 - GAME SUMMARY:
-# Displays each persons' guess for each turn and the corresponding giphy
+-- Displays each persons' guess for each turn and the corresponding giphy
 
 
-## Gameplay
-- GAME START 
-# Randomize order of players, no new players can join now
-# each turn is 20 seconds? DING sound?
+## Gameplay 
+- Randomize order of players, no new players can join now
+- each turn is 20 seconds? DING sound?
 1. FIRST PLAYER: Writes topic giphy images will be displayed to them. They will choose one image.
 2. NEXT PLAYER: First player's gif passes to this player, he or she guesses the gif's topic. A random giphy is generated from this player's topic.
 3. NEXT PLAYER: Gets the randomly generated gif. He or she guesses the gif's topic and choose one image (like 1st player).
 4. Repeat steps 2 and 3 until 1st player receives the set of gifs that originated from him or her.
-# Every player that guesses the exact topic of the first player will be given n number of correct guesses the summary page. 
-# *NOTE: There are also graphical charts that outline this process located in the [wiki](https://github.com/JessicaNgo/TeleGiphy/wiki/)*
+- Every player that guesses the exact topic of the first player will be given n number of correct guesses the summary page. 
+- *NOTE: There are also graphical charts that outline this process located in the [wiki](https://github.com/JessicaNgo/TeleGiphy/wiki/)*
 
