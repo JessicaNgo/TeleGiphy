@@ -20,3 +20,6 @@ urlpatterns = [
     url(r'^', include('game.urls')),
     url(r'^admin/', admin.site.urls),
 ]
+
+handler500 = 'tele_giphy.views.custom_error_page'
+handler404 = 'tele_giphy.views.custom_not_found_page'
