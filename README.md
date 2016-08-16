@@ -23,6 +23,8 @@ $ echo "unset DJANGO_SETTINGS_MODULE" >> $WORKON_HOME/tele-giphy/bin/postdeactiv
 $ echo "export PYTHONPATH=\${OLD_PYTHONPATH}" >> $WORKON_HOME/tele-giphy/bin/postdeactivate 
 $ echo "unset OLD_PYTHONPATH" >> $WORKON_HOME/tele-giphy/bin/postdeactivate
 $ pip install -r requirements/local.txt
+$ deactivate
+$ workon tele-giphy
 $ django-admin migrate
 ```
 
