@@ -1,28 +1,4 @@
-# Project Name: TeleGiphy (Gipherino?)
-
-
-##Team Members:
-- Jessica Ngo
-  - Le [github](https://github.com/JessicaNgo)
-  - Le [linkedin](https://ca.linkedin.com/in/ngojessica)
-  - Le [facebook](https://www.facebook.com/jessica.ngo.1069)
-  - Le biographie: I am an avid doge lover and code writer
-- Brian Wu
-  - Le [facebook](www.facebook.com/poenbwu)
-  - Le [linkedin](www.linkedin.com/poenbrianwu)
-  - Le [github](www.github.com/Zizibaluba)
-  - Le biographie: 3 serious 5 satire, so I make my own (that no one understands). Wants to be grow up to be an Internet Detective. See also:  Japan-o-phile, foodie, gamer, librarian, and coder.
-- Christopher Pourier
-  - La [website](http://corez.nl/) (its outdated and simple af doe)
-  - La [linkedin](https://an.linkedin.com/in/christopher-pourier-81042828)
-  - La [github](https://github.com/corez92)
-  - La biografia: Yo soy yo. 
-- Adrian Hintermaier
-  - Le [github](https://github.com/Mester)
-  - Le [linkedin](https://se.linkedin.com/in/adrianhintermaier)
-  - Le [facebook](https://www.facebook.com/adrian.hintermaier)
-  - Le biographie: 
-
+﻿# Project Name: TeleGiphy
 
 ## Overview
 TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of players through whispers, and is entertaining through the often very distorted message at the end. TeleGiphy is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of whispers to distort messages. 
@@ -30,7 +6,6 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 ## Purpose/Goals
 - To create an enjoyable social experience through a simple party game.
 - To allow for an asynchronous experience in social contexts.
-- Usage of the giphy platform 
 
 
 ## Business Requirements (App features?)
@@ -39,14 +14,16 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 - A UI will be created to abide by the [game flow](https://github.com/JessicaNgo/TeleGiphy/wiki/Game-Flow) and [gameplay](https://github.com/JessicaNgo/TeleGiphy/wiki/Gameplay) as outlined in the wiki.
 
 ## Secondary Goals
-- Client needs to be able to see other clients within the game, and be directed to the next round/aspect of the game.
-- Chat; potentially acts to provide the functionality as above.
+- Client needs to be able to see other clients within the game and be directed to the next round/aspect of the game. (??)
+- Chat: potentially acts to provide the functionality as above.
+- Send game invitations via third-party sites/using their APIs
 
 
-## Technology Requirements
-- django framework
+## Technology
+- [Django](https://www.djangoproject.com/)
 - [Giphy API](https://github.com/Giphy/GiphyAPI)
-- Bootstrap (?)
+- [Bootstrap](http://getbootstrap.com/)
+- SQLite3 (?)
 
 
 ## TeleGiphy UI
@@ -73,3 +50,25 @@ TeleGiphy is based off the icebreaker game, “Telephone”, where an original m
 - Every player that guesses the exact topic of the first player will be given n number of correct guesses the summary page. 
 - *NOTE: There are also graphical charts that outline this process located in the [wiki](https://github.com/JessicaNgo/TeleGiphy/wiki/)*
 
+
+##Team Members:
+- Jessica Ngo
+  - Le [github](https://github.com/JessicaNgo)
+  - Le [linkedin](https://ca.linkedin.com/in/ngojessica)
+  - Le [facebook](https://www.facebook.com/jessica.ngo.1069)
+  - Le biographie: I am an avid doge lover and code writer
+- Brian Wu
+  - Le [facebook](www.facebook.com/poenbwu)
+  - Le [linkedin](www.linkedin.com/poenbrianwu)
+  - Le [github](www.github.com/Zizibaluba)
+  - Le biographie: 3 serious 5 satire, so I make my own (that no one understands). Wants to be grow up to be an Internet Detective. See also:  Japan-o-phile, foodie, gamer, librarian, and coder.
+- Christopher Pourier
+  - La [website](http://corez.nl/) (its outdated and simple af doe)
+  - La [linkedin](https://an.linkedin.com/in/christopher-pourier-81042828)
+  - La [github](https://github.com/corez92)
+  - La biografia: Yo soy yo. 
+- Adrian Hintermaier
+  - Le [github](https://github.com/Mester)
+  - Le [linkedin](https://se.linkedin.com/in/adrianhintermaier)
+  - Le [facebook](https://www.facebook.com/adrian.hintermaier)
+  - Le biographie: 
