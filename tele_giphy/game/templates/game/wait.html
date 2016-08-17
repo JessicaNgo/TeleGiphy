@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main_content %}
+
+<div class="row">
+	<div class="col-md-2"></div>
+	<div class="col-md-8">
+	<p>
+	<h4>Game Rounds</h4>
+		<ul>
+			<li>FIRST PLAYER: Writes topic giphy images will be displayed to them. They will choose one image.</li>
+			<li>NEXT PLAYER: First player's gif passes to this player, he or she guesses the gif's topic. A random giphy is generated from this player's topic.</li>
+			<li>NEXT PLAYER: Gets the randomly generated gif. He or she guesses the gif's topic and choose one image (like 1st player).</li>
+			<li>Repeat steps 2 and 3 until 1st player receives the set of gifs that originated from him or her.</li>
+			<li>Every player that guesses the exact topic of the first player will be given n number of correct guesses the summary page.</li>
+		</ul>
+		<center>
+		<p><strong>The token for you're game is:</strong></p>
+		<p>{{ token }}</p>
+		<!-- if it is the creator this button should appear, but for now it'll appear for everyone -->
+		<p><a href="start/"><button type="button" class="btn btn-success">Start Game</button></a></p>
+		</center>
+	</div>
+	<div class="col-md-2"></div>
+</div>
+{% endblock %}
