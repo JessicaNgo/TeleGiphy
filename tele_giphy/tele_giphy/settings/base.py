@@ -13,8 +13,12 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# TeleGiphy/tele_giphy/tele_giphy
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# TeleGiphy/tele_giphy
+DJANGO_PROJECT_DIR = os.path.dirname(BASE_DIR)
+# TeleGiphy/
+PROJECT_DIR = os.path.dirname(DJANGO_PROJECT_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -25,7 +29,7 @@ SECRET_KEY = 'l@qo+aavqh3a+=xkqw5@wvrkdh10atuaw#td92l3nc3+fnnw(s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -55,7 +59,7 @@ ROOT_URLCONF = 'tele_giphy.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(DJANGO_PROJECT_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,3 +123,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(PROJECT_DIR, "static")
+
+STATICFILES_DIRS = [
+    os.path.join(DJANGO_PROJECT_DIR, "static"),
+]
