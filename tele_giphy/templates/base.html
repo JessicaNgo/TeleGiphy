@@ -26,12 +26,18 @@
 <body>
 {% block body %}
   {% block header %}
-
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4"></div>
+      <div class="col-md-4"><h1 id="tg"><center>TeleGiphy</center></h1></div>
+      <div class="col-md-4"></div>
+    </div>
+  
   {% endblock %}
 
   {% block messages %}{% endblock %}
   {% block main_content %}{% endblock %}
-
+  </div>
   {% block footer %}
 
   {% endblock%}
