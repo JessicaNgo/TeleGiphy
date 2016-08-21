@@ -6,8 +6,7 @@ import random
 
 def index(request):
 	token = ""
-	for i in range(4):
-		token = token + random.choice('1234567890')
+	token = str(random.randint(1000,9999))
 	return render(request, 'game/index.html', {"token": token})
 
 def wait(request, token):

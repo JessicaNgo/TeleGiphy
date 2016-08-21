@@ -9,7 +9,7 @@
 	  </p>
 	  <br>
 	  <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->
-	  <p><a href="/game/{{ token }}"><button type="button" class="btn btn-primary btn-lg btn-block">New game</button></a></p>
+	  <p><a href="{% url 'game:waiting_lobby' token %}"><button type="button" class="btn btn-primary btn-lg btn-block">New game</button></a></p>
 	  <p>
 	  	<!-- <form class="form-inline">
   		<div class="form-group">
@@ -24,7 +24,7 @@
 
 	  <input type="text" class="form-control" placeholder="e.g. 9000"></p>
 	  <p>
-	  <a href="/game/{{ token }}"><button type="button" class="btn btn-info">Enter game</button></a>
+	  <a href="{% url 'game:game_lobby' token %}"><button type="button" class="btn btn-info">Enter game</button></a>
 	  </p>
   </div>
   <div class="col-md-2"></div>
