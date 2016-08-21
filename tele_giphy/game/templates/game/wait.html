@@ -18,7 +18,7 @@
 		<p><strong>The token for your game is:</strong></p>
 		<p>{{ token }}</p>
 		<!-- if it is the creator this button should appear, but for now it'll appear for everyone -->
-		<p><a href="start/"><button type="button" class="btn btn-success">Start Game</button></a></p>
+		<p><a href="{%url 'game:game_lobby' token %}"><button type="button" class="btn btn-success">Start Game</button></a></p>
 		</center>
 	</div>
 	<div class="col-md-2"></div>

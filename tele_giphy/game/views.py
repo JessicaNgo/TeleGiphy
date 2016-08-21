@@ -15,7 +15,9 @@ def new_game(request):
 
 def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
-	
+
+def hotseat_gameplay(request, token):
+	return render(request, 'game/hotseat_gameplay.html')
 # / index
 # new game => /new_game => generate token and redirect to waiting lobby
 # /waiting_lobby/<token>
