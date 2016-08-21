@@ -1,13 +1,21 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+
 import random
 
 # Create your views here.
 
 def index(request):
-	token = ""
+	return render(request, 'game/index.html')
+
+def new_game(request):
 	token = str(random.randint(1000,9999))
-	return render(request, 'game/index.html', {"token": token})
+	return HttpResponseRedirect(reverse('game:waiting_lobby', args = (token,)))
 
 def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
+	
+# / index
+# new game => /new_game => generate token and redirect to waiting lobby
+# /waiting_lobby/<token>
