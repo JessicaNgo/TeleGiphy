@@ -2,6 +2,8 @@ from django.db import models
 
 # Keeps tabs on a game token, whether game has started, and ended
 class Game(models.Model):
+    # def __str__(self):
+    #     return {'gametoken'}
     token = models.CharField(max_length=16)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
