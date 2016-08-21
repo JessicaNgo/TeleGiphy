@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "status": 200,
+    "msg": "OK"
+  },
+  "data": {
+    "fixed_width_small_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/100w.gif",
+    "image_original_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/giphy.gif",
+    "id": "VelUfLV3j2dOM",
+    "caption": "",
+    "fixed_width_downsampled_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/200w_d.gif",
+    "fixed_width_small_width": "100",
+    "fixed_width_downsampled_height": "112",
+    "fixed_height_small_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/100.gif",
+    "fixed_height_small_still_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/100_s.gif",
+    "image_frames": "15",
+    "image_width": "500",
+    "image_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/giphy.gif",
+    "fixed_height_small_height": "100",
+    "image_mp4_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/giphy.mp4",
+    "fixed_height_small_width": "178",
+    "url": "http://giphy.com/gifs/american-psycho-black-and-white-VelUfLV3j2dOM",
+    "fixed_height_downsampled_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/200_d.gif",
+    "image_height": "281",
+    "fixed_height_downsampled_height": "200",
+    "username": "",
+    "fixed_width_downsampled_width": "200",
+    "type": "gif",
+    "fixed_width_small_height": "56",
+    "fixed_height_downsampled_width": "356",
+    "fixed_width_small_still_url": "http://media0.giphy.com/media/VelUfLV3j2dOM/100w_s.gif"
+  }
+}
