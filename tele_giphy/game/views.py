@@ -35,7 +35,7 @@ def hotseat_gameplay(request, token):
     g = Game.objects.get(token=token)
     
     try:
-            g.gameround_set.get(round_number=g.current_round)
+            # g.gameround_set.get(round_number=g.current_round)
             gif = g.gameround_set.get(round_number = g.current_round).giphy_url
     except:
             gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
@@ -57,14 +57,21 @@ def choose_new_gif(request, token):
     gif = response['data']['image_url']
     
     g = Game.objects.get(token=token)
-    g.gameround_set.create( round_number = 1, 
-                            user_text = 'hello',
+    try:
+        g_round = g.gameround_set.get(round_number = g.current_round)
+        g_round.user_text = request.POST['phrase']
+        g_round.giphy_url = gif
+        g_round.save()
+    except:
+        g.gameround_set.create( round_number = g.current_round, 
+                            user_text = request.POST['phrase'],
                             giphy_url = gif)
-    g.save()                
+        g.save()                
     
     return HttpResponseRedirect(reverse('game:game_lobby', args = (token,)))
 
 def pass_on(request, token):
+    
     g = Game.objects.get(token=token)
     g.current_round += 1
     g.save()
