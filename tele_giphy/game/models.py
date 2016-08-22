@@ -7,7 +7,7 @@ class Game(models.Model):
     token = models.CharField(max_length=16)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
-    
+    current_round = models.IntegerField(default = 0)
     def __str__(self):
         return self.token
 
@@ -20,7 +20,7 @@ class User(models.Model):
         return str(self.username)
 
 # Keeps track of game rounds
-class GameRounds(models.Model):
+class GameRound(models.Model):
     round_number = models.IntegerField()
     user_text = models.CharField(max_length=150)
     giphy_url = models.CharField(max_length=2083) #Should be the AWS S3 URL, uses limitation of URL length

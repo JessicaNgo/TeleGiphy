@@ -4,22 +4,26 @@
 
 <div class = "row">
   <div class = "col-md-4">
-      Round Number
+      Round # {{game.current_round}}
   </div>
   <div class = "col-md-4 col-md-offset-4 text-right">
-      Player Number
+      Player # {{game.current_round}}
   </div>    
 </div>
 
 <div class = "row">
   <div class = "col-md-4 col-md-offset-4 text-center">
-      <input type="text" class="form-control" placeholder="Type your phrase here">
+      {#<form action = "{% url 'game:choose_new_gif' %}" method = 'post'>#}
+        <input type="text" class="form-control" placeholder="Type your phrase here">
+      <!--</form>-->
   </div>
 </div>
 
 <div class = "row">
   <div class = "col-md-4 col-md-offset-4 text-center">
-    <p class = "text-center" > <img class = "img-responsive center-block" src = "https://media.giphy.com/media/14h3UtIQJtswhi/giphy.gif" /> </p>
+    <p class = "text-center" > 
+      <img alt = "enter some text!" class = "img-responsive center-block" src = "https://media.giphy.com/media/14h3UtIQJtswhi/giphy.gif" /> 
+    </p>
   </div>
 </div>
 
