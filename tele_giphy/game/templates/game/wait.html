@@ -4,23 +4,29 @@
 {% block main_content %}
 
 <div class="row">
-	<div class="col-md-2"></div>
-	<div class="col-md-8">
-	<p>
-	Meet Bob. Let's see how Bob and his friends play TeleGiphy while we wait.
-	<h4>How does TeleGiphy work?</h4>
-		<ul>
-			<li>Bob enters a word in a textbox, it can be whatever word he can come up with. When Bob has chosen a word, he clicks on the "GIF ME" button, at this point Bob can't edit his word anymore! A initial GIF will be generated based on that word. If the GIF generated is "good" according to Bob (it represents his word correctly, for example) Bob can click on the "PASS ON" button. If Bob isn't satisfied with the GIF presented to him, he can generate a new one by clicking the "ANOTHER GIF" button. Bob can keep on generating new GIFs like this until time runs out (10 seconds). If Bob decides on a GIF before 10 seconds pass, he clicks on the "PASS ON" button. Otherwise, the last GIF he generated will be the one the game chooses for him.</li>
-			<li>Everyone of Bob's friends also had to do the same thing. So, Bob receives a GIF from another person. Bob has to now describe the GIF he received. Bob then clicks the "GIF ME" button and he can keep on choosing again just like before between different GIFs until 10 seconds pass.
-			<li>This is repeated again until Bob receives the guess for his original GIF. At this point a list will be presented with all the GIFs and descriptions for Bob's initial word.</li>
-		</ul>
-		<center>
-		<p><strong>The token for your game is:</strong></p>
-		<p>{{ token }}</p>
-		<!-- if it is the creator this button should appear, but for now it'll appear for everyone -->
-		<p><a href="{%url 'game:game_lobby' token %}"><button type="button" class="btn btn-success">Start Game</button></a></p>
-		</center>
-	</div>
-	<div class="col-md-2"></div>
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+    <p>
+    Meet Bob. Let's see how Bob and his friends play TeleGiphy while we wait.
+    <h4>How does TeleGiphy work?</h4>
+        <ul>
+            <li>Bob enters a word in a textbox, it can be whatever word he can come up with. When Bob has chosen a word, he clicks on the "GIF ME" button, at this point Bob can't edit his word anymore! A initial GIF will be generated based on that word. If the GIF generated is "good" according to Bob (it represents his word correctly, for example) Bob can click on the "PASS ON" button. If Bob isn't satisfied with the GIF presented to him, he can generate a new one by clicking the "ANOTHER GIF" button. Bob can keep on generating new GIFs like this until time runs out (10 seconds). If Bob decides on a GIF before 10 seconds pass, he clicks on the "PASS ON" button. Otherwise, the last GIF he generated will be the one the game chooses for him.</li>
+            <li>Everyone of Bob's friends also had to do the same thing. So, Bob receives a GIF from another person. Bob has to now describe the GIF he received. Bob then clicks the "GIF ME" button and he can keep on choosing again just like before between different GIFs until 10 seconds pass.
+            <li>This is repeated again until Bob receives the guess for his original GIF. At this point a list will be presented with all the GIFs and descriptions for Bob's initial word.</li>
+        </ul>
+        <center>
+        <p><strong>The token for your game is:</strong></p>
+        <p>{{ token }}</p>
+        <!-- if it is the creator this button should appear, but for now it'll appear for everyone -->
+        
+        <form action = "{% url 'game:start_game' token %}" method = "post">
+          {% csrf_token %}
+          <input type="submit" class = "btn btn-success" value = "Start Game" />
+        </form>
+        
+        
+        </center>
+    </div>
+    <div class="col-md-2"></div>
 </div>
 {% endblock %}
