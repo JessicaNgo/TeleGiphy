@@ -37,20 +37,25 @@ def hotseat_gameplay(request, token):
     try:
             # g.gameround_set.get(round_number=g.current_round)
             gif = g.gameround_set.get(round_number = g.current_round).giphy_url
+            phrase = g.gameround_set.get(round_number = g.current_round).user_text
     except:
             gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
+            phrase = "Please input your phrase here"
     
     context = {
         'token': token, 
         'game':g, 
-        'gif':gif
+        'gif':gif,
+        'phrase': phrase
         }
     if g.current_round is 1:
-        
-        return render(request, 'game/hotseat_first_player.html', context )
+        return render(request, 'game/hotseat_firstplayer.html', context )
     else:
         return render(request, 'game/hotseat_gameplay.html', context)
         
+def select_phrase(request, token):
+    phrase = request.POST['phrase']
+
 def choose_new_gif(request, token):
     
     response = gif_random(tag = request.POST['phrase'] )

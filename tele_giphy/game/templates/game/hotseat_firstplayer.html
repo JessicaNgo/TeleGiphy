@@ -15,7 +15,8 @@
   <div class = "col-md-4 col-md-offset-4 text-center">
       <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
         {% csrf_token %}
-          <input type="text" name = 'phrase' class="form-control" placeholder="Type your phrase here">
+          Type your phrase below        
+          <input type="text" name = 'phrase' class="form-control" value = {{phrase}}>
           <input type="submit" class = "btn btn-success" value = "giphify!" />
       </form>
   </div>
