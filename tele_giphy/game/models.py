@@ -7,7 +7,7 @@ class Game(models.Model):
     token = models.CharField(max_length=16)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
-    current_round = models.IntegerField(default = 0)
+    current_round = models.IntegerField(default = 1)
     def __str__(self):
         return self.token
 
