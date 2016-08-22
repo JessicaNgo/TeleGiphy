@@ -4,6 +4,7 @@ from django.urls import reverse
 
 import random
 from .models import Game
+from .giphy import gif_translate
 # Create your views here.
 
 def index(request):
