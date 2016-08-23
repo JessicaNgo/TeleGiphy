@@ -16,8 +16,9 @@
       <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
         {% csrf_token %}
           Type your phrase below        
-          <input type="text" name = 'phrase' class="form-control" value = {{phrase}}>
-          <input type="submit" class = "btn btn-success" value = "giphify!" />
+          <p><input type="text" name = 'phrase' class="form-control" value = {{phrase}}></p>
+          <p><button type="submit" class="btn btn-default">Give me a GIF!</button></p>
+          <!--<input type="submit" class = "btn btn-success" value = "giphify!" /> -->
       </form>
   </div>
 </div>
@@ -25,20 +26,26 @@
 <div class = "row">
   <div class = "col-md-4 col-md-offset-4 text-center">
     <p class = "text-center" > 
-      <img alt = " enter some text above!" class = "img-responsive center-block" src = {{gif}} /> 
+      <img alt = "Enter some text above!" class = "img-responsive center-block" src = {{gif}} /> 
     </p>
   </div>
 </div>
 
 <div class = "row">
-  <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
-    <div class = "col-md-6 text-right"><button type="button" class="btn btn-default">Choose another gif</button></div>
-  </form>
+  <div class = "col-md-4 col-md-offset-4 text-center">
+<!--   <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
+  {% csrf_token %}
+    <div class = "col-md-6 text-right"><button type="submit" class="btn btn-default">Give me a GIF!</button></div>
+  </form> -->
   
-{#  <form action = "{% url 'game:next_player' %}" method = 'post'> #}
-    <div class = "col-md-6 text-left"><button type="button" class="btn btn-success">Pass on this Gif!</button></div>  
-  <!--</form>-->
+  <form action = "{% url 'game:pass_on' token %}" method = 'post'>
+  {% csrf_token %}
+    <button type="submit" class="btn btn-success">Pass on this GIF!</button>
+  </form>
+  </div>
 </div>
 
+
+<!--game:next_player-->
 {% endblock %}
 

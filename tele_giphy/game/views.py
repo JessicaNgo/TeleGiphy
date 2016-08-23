@@ -50,17 +50,18 @@ def start_game(request, token):
     
     return HttpResponseRedirect(reverse('game:game_lobby', args = (token,)))
 
+#==================
 def hotseat_gameplay(request, token):
     #if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
     
     try:
-            # g.gameround_set.get(round_number=g.current_round)
-            gif = g.gameround_set.get(round_number = g.current_round).giphy_url
-            phrase = g.gameround_set.get(round_number = g.current_round).user_text
+        # g.gameround_set.get(round_number=g.current_round)
+        gif = g.gameround_set.get(round_number = g.current_round).giphy_url
+        phrase = g.gameround_set.get(round_number = g.current_round).user_text
     except:
-            gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
-            phrase = "Please input your phrase here"
+        gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
+        phrase = "Please input your phrase here"
     
     context = {
         'token': token, 
@@ -69,8 +70,10 @@ def hotseat_gameplay(request, token):
         'phrase': phrase
         }
     if g.current_round is 1:
+        #print("ONE")
         return render(request, 'game/hotseat_firstplayer.html', context )
     else:
+        #print("TWO")
         return render(request, 'game/hotseat_gameplay.html', context)
         
 def select_phrase(request, token):
@@ -102,6 +105,7 @@ def pass_on(request, token):
     g.save()
     
     return HttpResponseRedirect(reverse('game:game_lobby', args = (token,)))
+#==================
 # g.gameround_set.create(round_number = 1,
 #                         user_text = 'hello',
 #                         giphy_url = 'https://slack-imgs.com/?c=1&o1=wi320.he240&url=http%3A%2F%2Fmedia3.giphy.com%2Fmedia%2FUX1fquhNEQsLK%2Fgiphy.gif',
