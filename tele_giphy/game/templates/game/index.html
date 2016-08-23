@@ -10,22 +10,13 @@
     <br>
     <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->
     <p><a href="{% url 'game:new_game' %}"><button type="button" class="btn btn-primary btn-lg btn-block">New game</button></a></p>
+    <form action="{% url 'game:join_game' %}" method="post">
+    {% csrf_token %}
+    <p><input type="text" class="form-control" placeholder="e.g. 9000" name="join_token"></p>
     <p>
-      <!-- <form class="form-inline">
-      <div class="form-group">
-      <label class="sr-only" for="exampleInputAmount">e.g. 9000</label>
-      <div class="input-group">
-    <div class="input-group-addon">Game token</div>
-    <input type="text" class="form-control" id="exampleInputAmount" placeholder="Amount">
-    <a type="button" class="btn btn-info"><div class="input-group-addon">Enter game</div></a>
-    </div>
-  </div>
-</form> -->
-
-    <input type="text" class="form-control" placeholder="e.g. 9000"></p>
-    <p>
-    <a href="{% url 'game:index' %}"><button type="button" class="btn btn-info">Enter game</button></a>
+    <button type="submit" class="btn btn-info">Enter game</button>
     </p>
+    </form>
   </div>
   <div class="col-md-2"></div>
 </div>

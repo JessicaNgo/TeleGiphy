@@ -30,6 +30,9 @@
     <div class="row">
       <p class="navbar-text navbar-right"><a href="{% url 'game:index' %}" class="navbar-link"><button type="button" class="btn btn-default navbar-btn">Home </button></a></p>
     </div>
+    {% if error_message %}
+      <div class="alert alert-danger" role="alert"><strong>{{ error_message }}</strong></div>
+    {% endif %}
     <div class="row">
       <div class="col-md-4-offset-4"><h1 id="tg"><center> TeleGiphy </center></h1></div>
     </div>

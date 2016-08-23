@@ -4,10 +4,11 @@ from django.db import models
 class Game(models.Model):
     # def __str__(self):
     #     return {'gametoken'}
-    token = models.CharField(max_length=16)
+    token = models.CharField(max_length=4)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
     current_round = models.IntegerField(default = 1)
+
     def __str__(self):
         return self.token
 

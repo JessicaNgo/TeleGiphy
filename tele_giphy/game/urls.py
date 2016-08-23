@@ -7,6 +7,7 @@ app_name = 'game'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^new_game$', views.new_game, name = 'new_game'),
+    url(r'^join_game$', views.join_game, name = 'join_game'),
     url(r'^waiting_lobby/(?P<token>[0-9]+)/$', views.waiting_lobby, name='waiting_lobby'),
     url(r'^waiting_lobby/(?P<token>[0-9]+)/start_game$', views.start_game, name='start_game'),
     url(r'^game_lobby/(?P<token>[0-9]+)/$', views.hotseat_gameplay, name = 'game_lobby'),

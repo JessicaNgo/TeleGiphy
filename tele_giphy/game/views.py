@@ -8,16 +8,36 @@ from .giphy import gif_random
 # Create your views here.
 
 def index(request):
+    """ This is the index view."""
     return render(request, 'game/index.html')
 
 def new_game(request):
-    token = str(random.randint(1000,9999)) #make tokens unique?
-    
-    #make new game in database with token
-    g = Game(token = token) 
+    """ This view creates a new game token when a user clicks on "New Game" button on index.html
+    This is done randomly and then checks in the database to see if that token is already present.
+    If so, it'll keep on trying until it finds a unique token.
+    """
+    # Makes initial token
+    new_token = str(random.randint(1000,9999))
+    # Checks to see if the token created is unique
+    # What if ALL tokens already taken? Well, that would suck!
+    while Game.objects.filter(token = new_token).exists():
+        new_token = str(random.randint(1000,9999))
+    # Make new game in database with the token
+    g = Game(token = new_token) 
     g.save()
-    
-    return HttpResponseRedirect(reverse('game:waiting_lobby', args = (token,)))
+    return HttpResponseRedirect(reverse('game:waiting_lobby', args = (new_token,)))
+
+def join_game(request):
+    """ This view allows a different users to join a pre-exisiting game if it exists.
+    If it exists, it should also check to see if the user is still able to join the game.
+    """
+    token = request.POST["join_token"]
+    # Check to see if game corresponding to game token exists
+    # An AND statement to check to see if the game is already "closed" should be added here
+    if Game.objects.filter(token = token).exists():
+        return HttpResponseRedirect(reverse('game:waiting_lobby', args = (token,)))
+    error_message = "Token not found or invalid."
+    return render(request, 'game/index.html', {"error_message": error_message}, status=302)
 
 def waiting_lobby(request, token):
     return render(request, 'game/wait.html', {"token": token})
