@@ -16,7 +16,7 @@ def new_game(request):
 def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
 
-def gameover(request, token):
+def gameover(request):
     return render(request, 'game/gameover.html')
 
 	
