@@ -15,6 +15,10 @@ def new_game(request):
 
 def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
+
+def gameover(request, token):
+    pass
+
 	
 # / index
 # new game => /new_game => generate token and redirect to waiting lobby
