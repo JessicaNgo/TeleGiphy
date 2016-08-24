@@ -17,7 +17,7 @@ def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
 
 def gameover(request, token):
-    pass
+    return render(request, 'game/gameover.html')
 
 	
 # / index
