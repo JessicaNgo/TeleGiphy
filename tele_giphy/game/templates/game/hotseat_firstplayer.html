@@ -4,97 +4,46 @@
 
 <div class = "row">
   <div class = "col-md-4">
-      Round # {{game.current_round}}
-  </div>
-  <div class = "col-md-4 col-md-offset-4 text-right">
-      Player # {{game.current_round}}
-  </div>    
-</div>
-
-<div class = "row">
-  <div class = "col-md-4 col-md-offset-4 text-center">
     {% load static %}
-          <div class="col-xs-6">
-            <h3>Received GIF</h3>
-            <img class = "img-responsive center-block" src="
-            {% if received_gif %}
-                {{ received_gif }}
-            {% else %}
-                {% static "img/placeholder.gif" %}
-            {% endif %}
-            " alt="received gif"/>
-          </div>
-          <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
-          {% csrf_token %}
-        <div class="form-group">
-          <label for="phrase-box">Please enter you're word or phrase here:</label>
-          <input type="text" class="form-control" name='phrase' id="phrase-box" placeholder="e.g. doge, my milkshake brings all the doges to the yard etc.">
-        </div>
-        <button type="submit" class="btn btn-primary">GIF me!</button>
-      </form>      
+    <h3>Received GIF</h3>
+    <img class = "img-responsive center-block" src= "
+                                                    {% if received_gif %}
+                                                        {{ received_gif }}
+                                                    {% else %}
+                                                        {% static 'img/placeholder.gif' %}
+                                                    {% endif %}
+                                                    " 
+                                                    alt="received gif"/>
+    
   </div>
-</div>
 
-<div class = "row">
-  <div class = "col-md-4 col-md-offset-4 text-center">
+  <div class = "col-md-4">
+    <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="phrase-box">Please enter you're word or phrase here:</label>
+        <input type="text" class="form-control" name='phrase' id="phrase-box" placeholder="e.g. doge, my milkshake brings all the doges to the yard etc.">
+      </div>
+      <button type="submit" class="btn btn-primary">GIF me!</button>
+    </form>
+    <form action = "{% url 'game:pass_on' token %}" method = 'post'>
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success">Pass GIF!</button>
+    </form>  
+  </div>
+
+  <div class = "col-md-4">  
     <p class = "text-center" > 
     <h3>Your GIF</h3>
-      <img alt = "Enter some text above!" class = "img-responsive center-block" src = "
-            {% if gif %}
-                {{ gif }}
-            {% else %}
-                {% static "img/placeholder.gif" %}
-            {% endif %}
-            " alt="received gif"/>
+      <img class = "img-responsive center-block" src= "
+                                                      {% if gif %}
+                                                          {{ gif }}
+                                                      {% else %}
+                                                          {% static 'img/placeholder.gif' %}
+                                                      {% endif %}
+                                                      " alt="your gif"/>
     </p>
   </div>
 </div>
-
-<div class = "row">
-  <div class = "col-md-4 col-md-offset-4 text-center">
-<!--   <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
-  {% csrf_token %}
-    <div class = "col-md-6 text-right"><button type="submit" class="btn btn-default">Give me a GIF!</button></div>
-  </form> -->
-  
-  <form action = "{% url 'game:pass_on' token %}" method = 'post'>
-  {% csrf_token %}
-    <button type="submit" class="btn btn-success">Pass GIF!</button>
-  </form>
-  </div>
-</div>
-
-
-
-<!-- <div class="row">
-  <div class="col-md-6 col-md-offset-3">
-    <div class="row">
-
-    {% load static %}
-          <div class="col-xs-6">
-            <h3>Received GIF</h3>
-            <img src="{% static "img/placeholder.gif" %}" alt="received gif"/>
-          </div>
-
-          <div class="col-xs-6">
-            <h3>Your GIF</h3>
-            <img src="{% static "img/placeholder.gif" %}" alt="your gif"/></div>
-          </div>
-  <form>
-    <div class="form-group">
-      <label for="phrase">Please enter you're word or phrase here:</label>
-      <input type="text" class="form-control" id="phrase" placeholder="e.g. doge, my milkshake brings all the doges to the yard etc.">
-    </div>
-  </form>
-    <div class="row">
-      <div class="col-xs-6"><button type="button" class="btn btn-primary">GIF me!</button></div>
-      <div class="col-xs-6"><button type="button" class="btn btn-primary">Pass GIF!</button></div>
-    </div>
-  </div>
-</div> -->
-
-
-
-<!--game:next_player-->
 {% endblock %}
 

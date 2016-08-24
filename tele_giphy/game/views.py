@@ -63,9 +63,7 @@ def hotseat_gameplay(request, token):
         received_gif = ""
     try:
         # g.gameround_set.get(round_number=g.current_round)
-        print(g.current_round)
         gif = g.gameround_set.get(round_number = g.current_round).giphy_url
-        print(gif)
         phrase = g.gameround_set.get(round_number = g.current_round).user_text
     except:
         gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
@@ -88,13 +86,14 @@ def hotseat_gameplay(request, token):
     # else:
     #     #print("TWO")
     #     return render(request, 'game/hotseat_gameplay.html', context)
-        
+    
+# Not sure what this is for..? \/\/\/        
 def select_phrase(request, token):
     phrase = request.POST['phrase']
 
 def choose_new_gif(request, token):
     
-    response = gif_random(tag = request.POST['phrase'] )
+    response = gif_random(tag = request.POST['phrase'])
     gif = response['data']['image_url']
     
     g = Game.objects.get(token=token)
@@ -121,8 +120,8 @@ def pass_on(request, token):
     
     return HttpResponseRedirect(reverse('game:game_lobby', args = (token,)))
 
-def hot(request):
-    return render(request, 'game/hotseat.html')
+# def hot(request):
+#     return render(request, 'game/hotseat.html')
 #==================
 # g.gameround_set.create(round_number = 1,
 #                         user_text = 'hello',
