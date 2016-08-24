@@ -54,27 +54,40 @@ def start_game(request, token):
 def hotseat_gameplay(request, token):
     #if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
-    
+    if g.current_round == 4:
+        print(g.gameround_set.all())
+        return render(request, 'game/hotseat_results.html', {"results": g.gameround_set.all()})
+    if g.current_round > 1:
+            received_gif = g.gameround_set.get(round_number = g.current_round-1).giphy_url
+    else:
+        received_gif = ""
     try:
         # g.gameround_set.get(round_number=g.current_round)
+        print(g.current_round)
         gif = g.gameround_set.get(round_number = g.current_round).giphy_url
+        print(gif)
         phrase = g.gameround_set.get(round_number = g.current_round).user_text
     except:
         gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
         phrase = "Please input your phrase here"
     
+    
     context = {
         'token': token, 
         'game':g, 
         'gif':gif,
-        'phrase': phrase
+        'phrase': phrase,
+        'received_gif': received_gif
         }
-    if g.current_round is 1:
-        #print("ONE")
-        return render(request, 'game/hotseat_firstplayer.html', context )
-    else:
-        #print("TWO")
-        return render(request, 'game/hotseat_gameplay.html', context)
+
+
+    return render(request, 'game/hotseat_firstplayer.html', context )
+    # if g.current_round is 1:
+    #     #print("ONE")
+    #     return render(request, 'game/hotseat_firstplayer.html', context )
+    # else:
+    #     #print("TWO")
+    #     return render(request, 'game/hotseat_gameplay.html', context)
         
 def select_phrase(request, token):
     phrase = request.POST['phrase']
@@ -101,10 +114,15 @@ def choose_new_gif(request, token):
 def pass_on(request, token):
     
     g = Game.objects.get(token=token)
+    print(g.current_round)
     g.current_round += 1
+    print(g.current_round)
     g.save()
     
     return HttpResponseRedirect(reverse('game:game_lobby', args = (token,)))
+
+def hot(request):
+    return render(request, 'game/hotseat.html')
 #==================
 # g.gameround_set.create(round_number = 1,
 #                         user_text = 'hello',

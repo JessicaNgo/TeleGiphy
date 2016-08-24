@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+<div class = "row">
+  <div class = "col-md-4 col-md-offset-4 text-center">
+<h1>results</h1>
+
+<ul>
+{% for result in results %}
+    <li>player{{forloop.counter}} entered {{ result.user_text }} and got <img class = "img-responsive center-block" src = "{{ result.giphy_url }}"/></li>
+{% endfor %}
+</ul>
+</div>
+</div>
+
+{% endblock %}
+
