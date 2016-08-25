@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+
+<div class = "row">
+  <div class = "col-md-4">
+      Round # {{game.current_round}}
+  </div>
+  <div class = "col-md-4 col-md-offset-4 text-right">
+      Player # {{game.current_round}}
+  </div>    
+</div>
+
+<div class = "row">
+  <div class = "col-md-4 col-md-offset-4 text-center">
+      <img class = "img-responsive center-block" src = "http://i.makeagif.com/media/10-06-2015/6NtUT0.gif"  />
+  </div>
+</div>
+
+<div class = "row">
+  <div class = "col-md-4 col-md-offset-4 text-center">
+      <input type="text" class="form-control" placeholder="Type your guess here">
+  </div>
+</div>
+
+<div class = "row">
+  <div class = "col-md-4 col-md-offset-4 text-center">
+    <p class = "text-center" > <img class = "img-responsive center-block" src = "https://media.giphy.com/media/14h3UtIQJtswhi/giphy.gif" /> </p>
+  </div>
+</div>
+
+<div class = "row">
+{#  <form action = "{% url 'game:choose_new_gif' %}" method = 'post'> #}
+    <div class = "col-md-6 text-right"><button type="button" class="btn btn-default">Choose another gif</button></div>
+  <!--</form>-->
+  
+{#  <form action = "{% url 'game:next_player' %}" method = 'post'> #}
+    <div class = "col-md-6 text-left"><button type="button" class="btn btn-success">Pass on this Gif!</button></div>  
+  <!--</form>-->
+</div>
+
+{% endblock %}
+

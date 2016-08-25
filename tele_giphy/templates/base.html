@@ -36,7 +36,11 @@
   
   {% endblock %}
 
-  {% block messages %}{% endblock %}
+  {% block messages %}
+  {% if error_message %}
+      <div class="alert alert-danger" role="alert"><strong>{{ error_message }}</strong></div>
+    {% endif %}
+  {% endblock %}
   {% block main_content %}{% endblock %}
   </div>
   {% block footer %}

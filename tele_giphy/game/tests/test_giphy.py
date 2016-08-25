@@ -1,14 +1,18 @@
-import pytest
 import json
-from ..giphy import gif_translate, gif_random
+
+import pytest
 import responses
+
+from ..giphy import gif_random, gif_translate
+
 
 # Load JSON fixtures
 @pytest.fixture(scope='module')
 def load_json(request):
     load_file = request.param
     with open(load_file, 'rU') as json_file:
-       return(json.load(json_file))
+        return (json.load(json_file))
+
 
 # Tests where giphy.gif_random get 200
 @pytest.mark.usefixtures('load_json')
@@ -20,8 +24,8 @@ class TestRandomSuccess:
         self.json = load_json
         # GET 200 setup
         responses.add(responses.GET,
-            'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=american+psycho',
-            json=json.dumps(self.json), status=200, match_querystring=True)
+                      'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=american+psycho',
+                      json=json.dumps(self.json), status=200, match_querystring=True)
 
     @responses.activate
     def testExpectedResponse(self):
@@ -32,6 +36,7 @@ class TestRandomSuccess:
         # json is the same between fixture and request
         for item in expected:
             assert item in resp.json()
+
 
 # Tests where giphy.gif_random get 403
 @pytest.mark.usefixtures('load_json')
@@ -44,8 +49,8 @@ class TestRandomFail:
         # GET 403 setup
         # Might want a more comprehensive regex to capture wrong api key
         responses.add(responses.GET,
-            'http://api.giphy.com/v1/gifs/random?api_key=abc&tag=american+psycho',
-            json=self.json, status=403, match_querystring=True)
+                      'http://api.giphy.com/v1/gifs/random?api_key=abc&tag=american+psycho',
+                      json=self.json, status=403, match_querystring=True)
 
     @responses.activate
     def testExpectedResponse(self):
@@ -69,8 +74,8 @@ class TestTranslateSuccess:
         # GET 403 setup
         # Might want a more comprehensive regex to capture wrong api key
         responses.add(responses.GET,
-            'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=leeroy',
-            json=self.json, status=200, match_querystring=True)
+                      'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=leeroy',
+                      json=self.json, status=200, match_querystring=True)
 
     @responses.activate
     def testExpectedResponse(self):
@@ -94,8 +99,8 @@ class TestTranslateFail:
         # GET 403 setup
         # Might want a more comprehensive regex to capture wrong api key
         responses.add(responses.GET,
-            'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=leeroy',
-            json=self.json, status=403, match_querystring=True)
+                      'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=leeroy',
+                      json=self.json, status=403, match_querystring=True)
 
     @responses.activate
     def testExpectedResponse(self):
