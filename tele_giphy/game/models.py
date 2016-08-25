@@ -16,5 +16,6 @@ class GameRounds(models.Model):
     round_number = models.IntegerField()
     user_text = models.CharField(max_length=150)
     giphy_url = models.CharField(max_length=2083) #Should be the AWS S3 URL, uses limitation of URL length
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    origin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='origin_user')
