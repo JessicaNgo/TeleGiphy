@@ -101,7 +101,7 @@ def select_phrase(request, token):
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
-    gif = response['data']['image_url']
+    gif = response.json()['data']['image_url']
 
     g = Game.objects.get(token=token)
     try:
