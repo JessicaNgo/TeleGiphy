@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+import random
+
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-import random
-from .models import Game
 from .giphy import gif_random
+from .models import Game
 
 
 # Create your views here.
