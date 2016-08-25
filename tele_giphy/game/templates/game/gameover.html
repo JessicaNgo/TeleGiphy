@@ -6,6 +6,20 @@
   <div class="col-md-8">
       <h1>Game Over</h1>
       <br>
+      <p>This is where the results will show up:<p><br>
+      <ul>
+      {% for player in result %}
+        <li>{{ player.username }}</li>
+        <br>
+        {% for round in player.rounds %}
+          <p>
+          {{round.user_text}}
+          </p>
+        {% endfor %}
+        <br>
+      {% endfor %}
+      </ul>
+      <br>
       <p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>
   </div>
   <div class="col-md-2"></div>
