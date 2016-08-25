@@ -33,7 +33,7 @@ def gameover(request):
             {'user_text': 'team ash pkmn', 'giphy_url': 'http://media4.giphy.com/media/eox3BwD5LHAQw/giphy.gif'}]
         },
         {'username': 'shibe', 'rounds':
-            [{'user_text': 'doge', 'giphy_url': 'https://media4.giphy.com/media/2FnQsl7O3aBC9O/giphy.gif'},
+            [{'user_text': 'doge', 'giphy_url': 'https://media0.giphy.com/media/AFqfVr0uYIH96/giphy.gif'},
             {'user_text': 'store shibe', 'giphy_url': 'http://media0.giphy.com/media/V2zGGB4ZWE5DW/giphy.gif'},
             {'user_text': 'weird store', 'giphy_url': 'http://media4.giphy.com/media/a0FuEjOWAxIuk/giphy.gif'}]
         }
