@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 import responses
@@ -9,14 +10,15 @@ from ..giphy import gif_random, gif_translate
 # Load JSON fixtures
 @pytest.fixture(scope='module')
 def load_json(request):
-    load_file = request.param
-    with open(load_file, 'rU') as json_file:
-        return (json.load(json_file))
+    file_name = request.param
+    path_to_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', file_name)
+    with open(path_to_json, 'rU') as json_file:
+        return json.load(json_file)
 
 
 # Tests where giphy.gif_random get 200
 @pytest.mark.usefixtures('load_json')
-@pytest.mark.parametrize("load_json", ['./tests/fixtures/random_200.json'], indirect=True)
+@pytest.mark.parametrize("load_json", ['random_200.json'], indirect=True)
 class TestRandomSuccess:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
@@ -40,7 +42,7 @@ class TestRandomSuccess:
 
 # Tests where giphy.gif_random get 403
 @pytest.mark.usefixtures('load_json')
-@pytest.mark.parametrize("load_json", ['./tests/fixtures/random_403.json'], indirect=True)
+@pytest.mark.parametrize("load_json", ['random_403.json'], indirect=True)
 class TestRandomFail:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
@@ -65,7 +67,7 @@ class TestRandomFail:
 
 # Tests where giphy.gif_translate get 200
 @pytest.mark.usefixtures('load_json')
-@pytest.mark.parametrize("load_json", ['./tests/fixtures/translate_200.json'], indirect=True)
+@pytest.mark.parametrize("load_json", ['translate_200.json'], indirect=True)
 class TestTranslateSuccess:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
@@ -90,7 +92,7 @@ class TestTranslateSuccess:
 
 # Tests where giphy.gif_translate get 403
 @pytest.mark.usefixtures('load_json')
-@pytest.mark.parametrize("load_json", ['./tests/fixtures/translate_403.json'], indirect=True)
+@pytest.mark.parametrize("load_json", ['translate_403.json'], indirect=True)
 class TestTranslateFail:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
