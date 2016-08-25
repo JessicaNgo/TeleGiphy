@@ -2,3 +2,4 @@
 
 django-debug-toolbar==1.5
 responses==0.5.1
+pytest==3.0.1
