@@ -1,9 +1,12 @@
+# Standard Library
 import json
 import os
 
+# Third Party
 import pytest
 import responses
 
+# Localfolder
 from ..giphy import gif_random, gif_translate
 
 

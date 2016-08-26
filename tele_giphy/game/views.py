@@ -1,9 +1,12 @@
+# Standard Library
 import random
 
+# Django
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
+# Localfolder
 from .giphy import gif_random
 from .models import Game
 
