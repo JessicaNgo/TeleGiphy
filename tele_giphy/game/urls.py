@@ -1,5 +1,7 @@
+# Django
 from django.conf.urls import url
 
+# Localfolder
 from . import views
 
 app_name = 'game'

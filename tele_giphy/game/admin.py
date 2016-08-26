@@ -1,5 +1,7 @@
+# Django
 from django.contrib import admin
 
+# Localfolder
 from .models import Game, GameRound, User
 
 # Register your models here.

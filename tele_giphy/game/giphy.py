@@ -1,3 +1,4 @@
+# Third Party
 from requests import get
 
 giphy_url = 'http://api.giphy.com/v1/gifs/'
