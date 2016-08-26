@@ -11,37 +11,49 @@
   {% block css_meta %}
     {% block css_bootstrap %}
       <!-- Latest compiled and minified CSS -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+            integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
       <!-- Optional theme -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+            integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     {% endblock %}
     {% block css_fa %}
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     {% endblock %}
     {% block css_tele_giphy %}
-      
+
     {% endblock %}
   {% endblock %}
 </head>
 <body>
 {% block body %}
   {% block header %}
-  <div class="container">
+    <div class="container">
     <div class="row">
-      <p class="navbar-text navbar-right"><a href="{% url 'game:index' %}" class="navbar-link"><button type="button" class="btn btn-default navbar-btn">Home </button></a></p>
+      <p class="navbar-text navbar-right"><a href="{% url 'game:index' %}" class="navbar-link">
+        <button type="button" class="btn btn-default navbar-btn">Home</button>
+      </a></p>
     </div>
     <div class="row">
-      <div class="col-md-4-offset-4"><h1 id="tg"><center> TeleGiphy </center></h1></div>
+      <div class="col-md-4-offset-4">
+        <h1 id="tg" class="text-center">
+          TeleGiphy
+        </h1>
+      </div>
     </div>
-  
+
   {% endblock %}
 
-  {% block messages %}{% endblock %}
-  {% block main_content %}{% endblock %}
-  </div>
+{% block messages %}
+  {% if error_message %}
+    <div class="alert alert-danger" role="alert"><strong>{{ error_message }}</strong></div>
+  {% endif %}
+{% endblock %}
+{% block main_content %}{% endblock %}
+</div>
   {% block footer %}
 
-  {% endblock%}
+  {% endblock %}
 {% endblock body %}
 
 {% block js %}
@@ -50,7 +62,9 @@
   {% endblock %}
   {% block js_bootstrap %}
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
   {% endblock %}
   {% block js_inline %}{% endblock %}
 {% endblock %}

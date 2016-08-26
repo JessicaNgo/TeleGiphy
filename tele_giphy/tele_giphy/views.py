@@ -1,5 +1,7 @@
-from django.http import HttpResponseServerError, HttpResponseNotFound
+# Django
+from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.template.loader import render_to_string
+
 
 def custom_error_page(request):
     return HttpResponseServerError(
