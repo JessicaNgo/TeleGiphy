@@ -4,9 +4,7 @@ from django.db import models
 
 # Keeps tabs on a game token, whether game has started, and ended
 class Game(models.Model):
-    # def __str__(self):
-    #     return {'gametoken'}
-    token = models.CharField(max_length=4)
+    token = models.CharField(max_length=16)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
     current_round = models.IntegerField(default=1)
@@ -19,6 +17,7 @@ class Game(models.Model):
 class User(models.Model):
     username = models.CharField(max_length=60)
 
+    # token can be added if there are persistent users
     # token = models.CharField(max_length=16)
 
     def __str__(self):
@@ -29,12 +28,7 @@ class User(models.Model):
 class GameRound(models.Model):
     round_number = models.IntegerField()
     user_text = models.CharField(max_length=150)
-    giphy_url = models.CharField(max_length=2083)  # Should be the AWS S3 URL, uses limitation of URL length
-    # user = models.ForeignKey(User, on_delete=models.CASCADE) #many to many relationship instead of many to one relationship?
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)  # many game rounds related to one game
-
-
-    # q = Game.objects.get(token="1234")
-    # derp = GameRounds(game = q, round_number = 0 , user_text = '2312', giphy_url = 'www.google.ca')
-    # or
-    # q.gamerounds_set.create(round_number etc)
+    giphy_url = models.CharField(max_length=2083) #2083 is max of URL length
+    user = models.ManyToManyField(User, related_name='user')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    origin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='origin_user', null=True)
