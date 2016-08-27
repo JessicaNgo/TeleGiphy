@@ -17,6 +17,7 @@ class Game(models.Model):
 class User(models.Model):
     username = models.CharField(max_length=60)
 
+    # token can be added if there are persistent users
     # token = models.CharField(max_length=16)
 
     def __str__(self):
@@ -30,4 +31,4 @@ class GameRound(models.Model):
     giphy_url = models.CharField(max_length=2083) #2083 is max of URL length
     user = models.ManyToManyField(User, related_name='user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    origin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='origin_user', default='')
+    origin_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='origin_user', null=True)
