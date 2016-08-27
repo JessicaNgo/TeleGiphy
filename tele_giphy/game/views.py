@@ -144,7 +144,6 @@ def pass_on(request, token):
 # or
 # q.gamerounds_set.create(round_number etc)
 
-<<<<<<< HEAD
 def wait(request, token):
 	return render(request, 'game/wait.html', {"token": token})
 
