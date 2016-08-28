@@ -16,25 +16,30 @@
                                                     alt="received gif"/>
     
   </div>
+</div>
 
+
+<div class = "row">
   <div class = "col-md-4">
     <form action = "{% url 'game:choose_new_gif' token %}" method = 'post'>
       {% csrf_token %}
       <div class="form-group">
-        <label for="phrase-box">Please enter you're word or phrase here:</label>
-        <input type="text" class="form-control" name='phrase' id="phrase-box" placeholder="e.g. doge, my milkshake brings all the doges to the yard etc.">
+        <label for="phrase-box">Please enter your word or phrase here:</label>
+        <input type="text" class="form-control" name='phrase' id="phrase-box" placeholder="e.g. doge, my milkshake brings all the doges to the yard etc." value = "{{phrase}}">
       </div>
+  </div>
+</div>
+<div class = "row">
       <button type="submit" class="btn btn-primary">GIF me!</button>
     </form>
     <form action = "{% url 'game:pass_on' token %}" method = 'post'>
       {% csrf_token %}
       <button type="submit" class="btn btn-success">Pass GIF!</button>
     </form>  
-  </div>
-
-  <div class = "col-md-4">  
-    <p class = "text-center" > 
-    <h3>Your GIF</h3>
+</div>
+<div class = "row">
+  <div class = "col-md-4 text-center">  
+    <h3 class = "text-center">Your GIF</h3>
       <img class = "img-responsive center-block" src= "
                                                       {% if gif %}
                                                           {{ gif }}
@@ -42,7 +47,6 @@
                                                           {% static 'img/placeholder.gif' %}
                                                       {% endif %}
                                                       " alt="your gif"/>
-    </p>
   </div>
 </div>
 {% endblock %}
