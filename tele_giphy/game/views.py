@@ -91,13 +91,10 @@ def hotseat_gameplay(request, token):
             'gif': gif,
             'received_gif': received_gif
         }
-
-    return render(request, 'game/hotseat_firstplayer.html', context)
+    return render(request, 'game/hotseat_gameplay.html', context)
     # if g.current_round is 1:
-    #     #print("ONE")
     #     return render(request, 'game/hotseat_firstplayer.html', context )
     # else:
-    #     #print("TWO")
     #     return render(request, 'game/hotseat_gameplay.html', context)
 
 
