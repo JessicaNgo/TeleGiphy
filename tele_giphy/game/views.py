@@ -2,10 +2,10 @@
 import random
 
 # Django
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.contrib import messages
 
 # Localfolder
 from .giphy import gif_random
@@ -46,11 +46,11 @@ def join_game(request):
     if Game.objects.filter(token=token).exists():
         return HttpResponseRedirect(reverse('game:waiting_lobby', args=(token,)))
     messages.error(request, "Token not found or invalid.")
-    return render(request, 'game/index.html',  status=302)
+    return render(request, 'game/index.html', status=302)
 
 
 def waiting_lobby(request, token):
-    return render(request, 'game/wait.html', {"token": token})
+    return render(request, 'game/pre_game_room.html', {"token": token})
 
 
 def start_game(request, token):
@@ -93,10 +93,6 @@ def hotseat_gameplay(request, token):
             'received_gif': received_gif
         }
     return render(request, 'game/hotseat_gameplay.html', context)
-    # if g.current_round is 1:
-    #     return render(request, 'game/hotseat_firstplayer.html', context )
-    # else:
-    #     return render(request, 'game/hotseat_gameplay.html', context)
 
 
 # Not sure what this is for..? \/\/\/        
@@ -131,22 +127,3 @@ def pass_on(request, token):
     g.save()
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
-
-# def hot(request):
-#     return render(request, 'game/hotseat.html')
-# ==================
-# g.gameround_set.create(round_number = 1,
-#                         user_text = 'hello',
-#                         giphy_url = 'https://slack-imgs.com/?c=1&o1=wi320.he240&url=http%3A%2F%2Fmedia3.giphy.com%2Fmedia%2FUX1fquhNEQsLK%2Fgiphy.gif',
-#                         )    
-# g.save()                
-
-# q = Game.objects.get(token="1234")
-# derp = GameRounds(game = q, round_number = 0 , user_text = '2312', giphy_url = 'www.google.ca')
-# or
-# q.gamerounds_set.create(round_number etc)
-
-# def choose_new_gif(request, token):
-# / index
-# new game => /new_game => generate token and redirect to waiting lobby
-# /waiting_lobby/<token>
