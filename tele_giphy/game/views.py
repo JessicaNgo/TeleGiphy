@@ -34,7 +34,7 @@ def new_game(request):
     g = Game(token=new_token)
     g.save()
     request.session['game_mode'] = request.POST['game_mode']
-    return HttpResponseRedirect(reverse('game:waiting_lobby', args=(new_token,)))
+    return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
 def join_game(request):
@@ -45,12 +45,12 @@ def join_game(request):
     # Check to see if game corresponding to game token exists
     # An AND statement to check to see if the game is already "closed" should be added here
     if Game.objects.filter(token=token).exists():
-        return HttpResponseRedirect(reverse('game:waiting_lobby', args=(token,)))
+        return HttpResponseRedirect(reverse('game:pre_game_room', args=(token,)))
     messages.error(request, "Token not found or invalid.")
     return render(request, 'game/index.html', status=302)
 
 
-def waiting_lobby(request, token):
+def pre_game_room(request, token):
     return render(request, 'game/pre_game_room.html', {"token": token})
 
 
