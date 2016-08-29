@@ -96,9 +96,9 @@ def hotseat_gameplay(request, token):
     return render(request, 'game/hotseat_gameplay.html', context)
 
 
-# Not sure what this is for..? \/\/\/        
-def select_phrase(request, token):
-    phrase = request.POST['phrase']
+# Not sure what this is for..? \/\/\/
+# def select_phrase(request, token):
+#     phrase = request.POST['phrase']
 
 
 def choose_new_gif(request, token):
