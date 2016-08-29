@@ -154,12 +154,12 @@ def choose_name(request):
     username = request.POST['username']
     try:
         user = User.objects.create(username=username)
-        messages.success(request, 'You have chosen "{}"!'.format(username))
         if request.user.is_authenticated():
             old_user = request.user
             django_logout(request)
             old_user.delete()
         _login_user(request, user)
+        messages.success(request, 'You have chosen "{}"!'.format(username))
     except IntegrityError:
         messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
 
