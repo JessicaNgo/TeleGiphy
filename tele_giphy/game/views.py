@@ -33,6 +33,7 @@ def new_game(request):
     # Make new game in database with the token
     g = Game(token=new_token)
     g.save()
+    request.session['game_mode'] = request.POST['game_mode']
     return HttpResponseRedirect(reverse('game:waiting_lobby', args=(new_token,)))
 
 
