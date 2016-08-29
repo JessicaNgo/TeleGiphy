@@ -29,23 +29,25 @@
     </div>
   </div>
   <div class="row">
-  <div class="col-md-8 col-md-offset-2">
-    <form action="{% url 'game:join_game' %}" method="post">
-      <div class="form-group">
-        <div class="input-group">
-          {% csrf_token %}
-          <input type="text" class="form-control" placeholder="e.g. 9000" name="join_token">
-          <span class="input-group-btn">
+    <div class="col-md-8 col-md-offset-2">
+      <form action="{% url 'game:join_game' %}" method="post">
+        <div class="form-group">
+          <label for="joinGame">Join a game that is starting:</label>
+          <div class="input-group">
+            {% csrf_token %}
+            <input type="text" id="joinGame" class="form-control" placeholder="e.g. 9000" name="join_token">
+            <span class="input-group-btn">
               <button class="btn btn-success" type="submit">Enter game</button>
             </span>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
       <br>
-      <form action="{% url 'game:choose_name' %}" method="post">
+      <form action="{% url 'game:choose_name' %}?next={{ request.path }}" method="post">
         <div class="form-group">
           <label for="chooseName">Choose a name (or one will be randomly generated):</label>
           <div class="input-group">

@@ -4,7 +4,7 @@ import random
 # Django
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
 # Localfolder
@@ -132,4 +132,4 @@ def pass_on(request, token):
 
 def choose_name(request):
     print(request.POST['user_name'])
-    pass
+    return redirect(request.GET.get('next', '/'))
