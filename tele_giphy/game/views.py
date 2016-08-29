@@ -5,6 +5,7 @@ import random
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.contrib import messages
 
 # Localfolder
 from .giphy import gif_random
@@ -44,8 +45,8 @@ def join_game(request):
     # An AND statement to check to see if the game is already "closed" should be added here
     if Game.objects.filter(token=token).exists():
         return HttpResponseRedirect(reverse('game:waiting_lobby', args=(token,)))
-    error_message = "Token not found or invalid."
-    return render(request, 'game/index.html', {"error_message": error_message}, status=302)
+    messages.error(request, "Token not found or invalid.")
+    return render(request, 'game/index.html',  status=302)
 
 
 def waiting_lobby(request, token):
