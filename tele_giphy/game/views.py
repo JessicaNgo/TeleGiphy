@@ -5,6 +5,7 @@ import random
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.contrib import messages
 
 # Localfolder
 from .giphy import gif_random
@@ -105,7 +106,13 @@ def select_phrase(request, token):
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
-    gif = response.json()['data']['image_url']
+    print(response.json())
+    try:
+        gif = response.json()['data']['image_url']
+    except TypeError:
+        messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+
 
     g = Game.objects.get(token=token)
     try:
