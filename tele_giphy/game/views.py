@@ -128,3 +128,8 @@ def pass_on(request, token):
     g.save()
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+
+
+def choose_name(request):
+    print(request.POST['user_name'])
+    pass
