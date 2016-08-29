@@ -21,7 +21,7 @@
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     {% endblock %}
     {% block css_tele_giphy %}
-
+      <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>
     {% endblock %}
   {% endblock %}
 </head>
@@ -43,7 +43,6 @@
     </div>
 
   {% endblock %}
-
 {% block messages %}
   {% if error_message %}
     <div class="alert alert-danger text-center" role="alert"><strong>{{ error_message }}</strong></div>
@@ -60,11 +59,25 @@
   </div>
   {% endif %}
 {% endblock %}
-{% block main_content %}{% endblock %}
-</div>
-  {% block footer %}
 
+{% block main_content %}{% endblock %}
+{% block footer %}
+  {% block common_messages %}
+    {% if messages %}
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2 messages">
+          {% for message in messages %}
+            <div class="alert {% if message.tags %} {{ message.tags }}{% endif %}" role="alert">
+              {% if message.tags == 'alert-danger' %}<strong>{% endif %}{{ message }}
+              {% if message.tags == 'alert-danger' %}</strong>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
   {% endblock %}
+{% endblock %}
+</div>
 {% endblock body %}
 
 {% block js %}
