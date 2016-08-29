@@ -4,21 +4,27 @@
 {% block main_content %}
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
-      <p>TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of
+      <div class="row">
+        TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of
         players through whispers, and is entertaining through the often very distorted message at the end.<br>TeleGiphy
-        is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of whispers
+        is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of
+        whispers
         to distort messages.
-      </p>
-      <br>
-{#      <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->#}
-      <p><a href="{% url 'game:new_game' %}">
-        <button type="button" class="btn btn-primary btn-lg btn-block">New hotseat game</button>
-      </a></p>
-      <p><a href="{% url 'game:new_game' %}">
-        <button type="button" class="btn btn-primary btn-lg btn-block">New multiplayer game</button>
-      </a></p>
+      </div>
+      {#      <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->#}
 
+      <div class="row">
+        <a href="{% url 'game:new_game' %}">
+          <button type="button" class="btn btn-primary btn-lg btn-block">New hotseat game</button>
+        </a>
+      </div>
+      <div class="row">
+        <a href="{% url 'game:new_game' %}">
+          <button type="button" class="btn btn-primary btn-lg btn-block">New multiplayer game</button>
+        </a>
+      </div>
     </div>
+
   </div>
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
