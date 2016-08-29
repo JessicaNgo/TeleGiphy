@@ -18,12 +18,15 @@ from .models import Game
 # Create your views here.
 
 def index(request):
-    """ This is the index view."""
+    """
+    This is the index view. That is all.
+    """
     return render(request, 'game/index.html')
 
 
 def new_game(request):
-    """ This view creates a new game token when a user clicks on "New Game" button on index.html
+    """
+    This view creates a new game token when a user clicks on "New Game" button on index.html
     This is done randomly and then checks in the database to see if that token is already present.
     If so, it'll keep on trying until it finds a unique token.
     """
@@ -41,7 +44,8 @@ def new_game(request):
 
 
 def join_game(request):
-    """ This view allows a different users to join a pre-exisiting game if it exists.
+    """
+    This view allows a different users to join a pre-exisiting game if it exists.
     If it exists, it should also check to see if the user is still able to join the game.
     """
     token = request.POST["join_token"]
@@ -54,11 +58,16 @@ def join_game(request):
 
 
 def pre_game_room(request, token):
+    """
+    This is where players come to wait until the game can start
+    """
     return render(request, 'game/pre_game_room.html', {"token": token})
 
 
 def start_game(request, token):
-    # current_game = get_object_or_404(Game, token)
+    """
+    The game is initiated through this view, not actually displayed though
+    """
     current_game = Game.objects.get(token=token)
     current_game.game_active = True
     current_game.save()
@@ -106,7 +115,13 @@ def hotseat_gameplay(request, token):
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
-    gif = response.json()['data']['image_url']
+    try:
+        gif = response.json()['data']['image_url']
+    except TypeError:
+        #messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
+        messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+
 
     g = Game.objects.get(token=token)
     try:
