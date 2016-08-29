@@ -52,7 +52,8 @@
           <label for="chooseName">Choose a name (or one will be randomly generated):</label>
           <div class="input-group">
             {% csrf_token %}
-            <input type="text" id="chooseName" class="form-control" placeholder="e.g. Sven" name="user_name">
+            <input type="text" pattern=".{2,20}" required title="2 to 20 characters" id="chooseName"
+                   class="form-control" placeholder="e.g. Sven" name="username">
             <span class="input-group-btn">
               <button class="btn btn-success" type="submit">Choose name</button>
             </span>
@@ -61,5 +62,12 @@
       </form>
     </div>
   </div>
+  {% if request.user.is_authenticated %}
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        Your current name is: {{ request.user }}
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 

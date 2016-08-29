@@ -2,9 +2,12 @@
 import random
 
 # Django
+from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import get_user_model, logout as django_logout
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 # Localfolder
@@ -130,6 +133,34 @@ def pass_on(request, token):
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
+def _login_user(request, user):
+    """
+    Log in a user without requiring credentials (using ``login`` from
+    ``django.contrib.auth``, first finding a matching backend).
+
+    """
+    from django.contrib.auth import load_backend, login
+    if not hasattr(user, 'backend'):
+        for backend in settings.AUTHENTICATION_BACKENDS:
+            if user == load_backend(backend).get_user(user.pk):
+                user.backend = backend
+                break
+    if hasattr(user, 'backend'):
+        return login(request, user)
+
+
 def choose_name(request):
-    print(request.POST['user_name'])
+    User = get_user_model()
+    username = request.POST['username']
+    try:
+        user = User.objects.create(username=username)
+        messages.success(request, 'You have chosen "{}"!'.format(username))
+        if request.user.is_authenticated():
+            old_user = request.user
+            django_logout(request)
+            old_user.delete()
+        _login_user(request, user)
+    except IntegrityError:
+        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
+
     return redirect(request.GET.get('next', '/'))
