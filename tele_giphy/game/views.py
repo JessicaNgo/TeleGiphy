@@ -2,8 +2,12 @@
 import random
 
 # Django
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import get_user_model, logout as django_logout
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 # Localfolder
@@ -14,12 +18,15 @@ from .models import Game
 # Create your views here.
 
 def index(request):
-    """ This is the index view."""
+    """
+    This is the index view. That is all.
+    """
     return render(request, 'game/index.html')
 
 
 def new_game(request):
-    """ This view creates a new game token when a user clicks on "New Game" button on index.html
+    """
+    This view creates a new game token when a user clicks on "New Game" button on index.html
     This is done randomly and then checks in the database to see if that token is already present.
     If so, it'll keep on trying until it finds a unique token.
     """
@@ -32,28 +39,35 @@ def new_game(request):
     # Make new game in database with the token
     g = Game(token=new_token)
     g.save()
-    return HttpResponseRedirect(reverse('game:waiting_lobby', args=(new_token,)))
+    request.session['game_mode'] = request.POST['game_mode']
+    return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
 def join_game(request):
-    """ This view allows a different users to join a pre-exisiting game if it exists.
+    """
+    This view allows a different users to join a pre-exisiting game if it exists.
     If it exists, it should also check to see if the user is still able to join the game.
     """
     token = request.POST["join_token"]
     # Check to see if game corresponding to game token exists
     # An AND statement to check to see if the game is already "closed" should be added here
     if Game.objects.filter(token=token).exists():
-        return HttpResponseRedirect(reverse('game:waiting_lobby', args=(token,)))
-    error_message = "Token not found or invalid."
-    return render(request, 'game/index.html', {"error_message": error_message}, status=302)
+        return HttpResponseRedirect(reverse('game:pre_game_room', args=(token,)))
+    messages.error(request, "Token not found or invalid.")
+    return render(request, 'game/index.html', status=302)
 
 
-def waiting_lobby(request, token):
-    return render(request, 'game/wait.html', {"token": token})
+def pre_game_room(request, token):
+    """
+    This is where players come to wait until the game can start
+    """
+    return render(request, 'game/pre_game_room.html', {"token": token})
 
 
 def start_game(request, token):
-    # current_game = get_object_or_404(Game, token)
+    """
+    The game is initiated through this view, not actually displayed though
+    """
     current_game = Game.objects.get(token=token)
     current_game.game_active = True
     current_game.save()
@@ -76,35 +90,38 @@ def hotseat_gameplay(request, token):
         # g.gameround_set.get(round_number=g.current_round)
         gif = g.gameround_set.get(round_number=g.current_round).giphy_url
         phrase = g.gameround_set.get(round_number=g.current_round).user_text
+        context = {
+            'token': token,
+            'game': g,
+            'gif': gif,
+            'phrase': phrase,
+            'received_gif': received_gif
+        }
     except:
         gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
-        phrase = "Please input your phrase here"
-
-    context = {
-        'token': token,
-        'game': g,
-        'gif': gif,
-        'phrase': phrase,
-        'received_gif': received_gif
-    }
-
-    return render(request, 'game/hotseat_firstplayer.html', context)
-    # if g.current_round is 1:
-    #     #print("ONE")
-    #     return render(request, 'game/hotseat_firstplayer.html', context )
-    # else:
-    #     #print("TWO")
-    #     return render(request, 'game/hotseat_gameplay.html', context)
+        context = {
+            'token': token,
+            'game': g,
+            'gif': gif,
+            'received_gif': received_gif
+        }
+    return render(request, 'game/hotseat_gameplay.html', context)
 
 
-# Not sure what this is for..? \/\/\/        
-def select_phrase(request, token):
-    phrase = request.POST['phrase']
+# Not sure what this is for..? \/\/\/
+# def select_phrase(request, token):
+#     phrase = request.POST['phrase']
 
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
-    gif = response.json()['data']['image_url']
+    try:
+        gif = response.json()['data']['image_url']
+    except TypeError:
+        #messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
+        messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+
 
     g = Game.objects.get(token=token)
     try:
@@ -130,21 +147,35 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
-# def hot(request):
-#     return render(request, 'game/hotseat.html')
-# ==================
-# g.gameround_set.create(round_number = 1,
-#                         user_text = 'hello',
-#                         giphy_url = 'https://slack-imgs.com/?c=1&o1=wi320.he240&url=http%3A%2F%2Fmedia3.giphy.com%2Fmedia%2FUX1fquhNEQsLK%2Fgiphy.gif',
-#                         )    
-# g.save()                
 
-# q = Game.objects.get(token="1234")
-# derp = GameRounds(game = q, round_number = 0 , user_text = '2312', giphy_url = 'www.google.ca')
-# or
-# q.gamerounds_set.create(round_number etc)
+def _login_user(request, user):
+    """
+    Log in a user without requiring credentials (using ``login`` from
+    ``django.contrib.auth``, first finding a matching backend).
 
-# def choose_new_gif(request, token):
-# / index
-# new game => /new_game => generate token and redirect to waiting lobby
-# /waiting_lobby/<token>
+    """
+    from django.contrib.auth import load_backend, login
+    if not hasattr(user, 'backend'):
+        for backend in settings.AUTHENTICATION_BACKENDS:
+            if user == load_backend(backend).get_user(user.pk):
+                user.backend = backend
+                break
+    if hasattr(user, 'backend'):
+        return login(request, user)
+
+
+def choose_name(request):
+    User = get_user_model()
+    username = request.POST['username']
+    try:
+        user = User.objects.create(username=username)
+        if request.user.is_authenticated():
+            old_user = request.user
+            django_logout(request)
+            old_user.delete()
+        _login_user(request, user)
+        messages.success(request, 'You have chosen "{}"!'.format(username))
+    except IntegrityError:
+        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
+
+    return redirect(request.GET.get('next', '/'))

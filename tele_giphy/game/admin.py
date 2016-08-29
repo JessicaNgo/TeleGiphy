@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 # Localfolder
-from .models import Game, GameRound, User
+from .models import Game, GameRound, UserGame
 
 # Text Form widget
 from charsleft_widget.widgets import CharsLeftInput, MediaMixin
@@ -17,6 +17,5 @@ class TextModelAdmin(MediaMixin, admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Game, TextModelAdmin)
-admin.site.register(User, TextModelAdmin)
+admin.site.register(UserGame, TextModelAdmin)
 admin.site.register(GameRound, TextModelAdmin)
-

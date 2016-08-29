@@ -4,29 +4,38 @@
 {% block main_content %}
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
-      <p>TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of
+      <div class="row">
+        TeleGiphy is based off the icebreaker game, “Telephone”, where an original message is passed along a chain of
         players through whispers, and is entertaining through the often very distorted message at the end.<br>TeleGiphy
-        is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of whispers
+        is a spin-off of the game that relies on Giphy’s magnificent random-ness when selecting gifs instead of
+        whispers
         to distort messages.
-      </p>
-      <br>
-{#      <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->#}
-      <p><a href="{% url 'game:new_game' %}">
-        <button type="button" class="btn btn-primary btn-lg btn-block">New hotseat game</button>
-      </a></p>
-      <p><a href="{% url 'game:new_game' %}">
-        <button type="button" class="btn btn-primary btn-lg btn-block">New multiplayer game</button>
-      </a></p>
+      </div>
+      {#      <!--<p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>-->#}
 
+      <div class="row">
+        <form action="{% url 'game:new_game' %}" method="post">
+          <div class="form-group">
+            {% csrf_token %}
+            <button type="submit" name="game_mode" class="btn btn-primary btn-lg btn-block" value="hotseat">
+              New hotseat game
+            </button>
+            <button type="submit" name="game_mode" class="btn btn-primary btn-lg btn-block" value="multiplayer">
+              New multiplayer game
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
   <div class="row">
     <div class="col-md-8 col-md-offset-2">
       <form action="{% url 'game:join_game' %}" method="post">
         <div class="form-group">
+          <label for="joinGame">Join a game that is starting:</label>
           <div class="input-group">
             {% csrf_token %}
-            <input type="text" class="form-control" placeholder="e.g. 9000" name="join_token">
+            <input type="text" id="joinGame" class="form-control" placeholder="e.g. 9000" name="join_token">
             <span class="input-group-btn">
               <button class="btn btn-success" type="submit">Enter game</button>
             </span>
@@ -35,5 +44,30 @@
       </form>
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <br>
+      <form action="{% url 'game:choose_name' %}?next={{ request.path }}" method="post">
+        <div class="form-group">
+          <label for="chooseName">Choose a name (or one will be randomly generated):</label>
+          <div class="input-group">
+            {% csrf_token %}
+            <input type="text" pattern=".{2,20}" required title="2 to 20 characters" id="chooseName"
+                   class="form-control" placeholder="e.g. Sven" name="username">
+            <span class="input-group-btn">
+              <button class="btn btn-success" type="submit">Choose name</button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% if request.user.is_authenticated %}
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        Your current name is: {{ request.user }}
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}
 

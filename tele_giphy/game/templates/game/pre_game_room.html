@@ -37,7 +37,25 @@
           <input type="submit" class="btn btn-success" value="Start Game"/>
         </form>
 
+        {#FOR DEBUG, REMOVE LATER#}
+        This is: {{ request.session.game_mode }}
 
+        {% if request.session.game_mode == 'multiplayer' %}
+          <div class="row">
+            <div class="col-md-4">
+              <h4>Current amount of players: 5 (PLACEHOLDER VALUE)</h4>
+            </div>
+            <div class="col-md-4 col-md-offset-4 text-right">
+              <h4>List of players joined: (ALL PLACEHOLDER VALUES)</h4>
+              <ul>
+                <li>Sven</li>
+                <li>Pelle</li>
+                <li>NONE OF YOUR BUSINESS</li>
+                <li>#235346</li>
+              </ul>
+            </div>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
