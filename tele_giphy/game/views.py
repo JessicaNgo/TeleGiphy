@@ -109,7 +109,8 @@ def choose_new_gif(request, token):
     try:
         gif = response.json()['data']['image_url']
     except TypeError:
-        messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
+        #messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
+        messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
