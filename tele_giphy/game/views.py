@@ -106,7 +106,6 @@ def select_phrase(request, token):
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
-    print(response.json())
     try:
         gif = response.json()['data']['image_url']
     except TypeError:
