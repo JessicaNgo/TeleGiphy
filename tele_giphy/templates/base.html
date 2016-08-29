@@ -48,6 +48,17 @@
   {% if error_message %}
     <div class="alert alert-danger text-center" role="alert"><strong>{{ error_message }}</strong></div>
   {% endif %}
+  {% if messages %}
+  <div class="alert alert-danger text-center" role="alert">
+<!--   <ul class="messages"> -->
+    {% for message in messages %}
+<!--     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}> -->
+    {{ message }}<br>
+<!--     </li> -->
+    {% endfor %}
+<!--   </ul> -->
+  </div>
+  {% endif %}
 {% endblock %}
 {% block main_content %}{% endblock %}
 </div>
