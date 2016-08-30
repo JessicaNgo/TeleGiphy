@@ -1,5 +1,6 @@
 # Standard Library
 import random
+from uuid import uuid4
 
 # Django
 from django.conf import settings
@@ -12,16 +13,22 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import Game
+from .models import Game, MULTIPLAYER_MODE
 
+User = get_user_model()
 
-# Create your views here.
 
 def index(request):
     """
     This is the index view. That is all.
     """
     return render(request, 'game/index.html')
+
+
+def _give_random_name(request):
+    user = User.objects.create(username=str(uuid4()))
+    _login_user(request, user)
+    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
 
 
 def new_game(request):
@@ -37,9 +44,11 @@ def new_game(request):
     while Game.objects.filter(token=new_token).exists():
         new_token = str(random.randint(1000, 9999))
     # Make new game in database with the token
-    g = Game(token=new_token)
-    g.save()
     request.session['game_mode'] = request.POST['game_mode']
+    game = Game(token=new_token, mode=request.session['game_mode'])
+    game.save()
+    if not request.user.is_authenticated():
+        _give_random_name(request)
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
@@ -52,6 +61,8 @@ def join_game(request):
     # Check to see if game corresponding to game token exists
     # An AND statement to check to see if the game is already "closed" should be added here
     if Game.objects.filter(token=token).exists():
+        if not request.user.is_authenticated():
+            _give_random_name(request)
         return HttpResponseRedirect(reverse('game:pre_game_room', args=(token,)))
     messages.error(request, "Token not found or invalid.")
     return render(request, 'game/index.html', status=302)
@@ -118,7 +129,6 @@ def choose_new_gif(request, token):
     try:
         gif = response.json()['data']['image_url']
     except TypeError:
-        #messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -135,9 +145,9 @@ def choose_new_gif(request, token):
 
 def pass_on(request, token):
     g = Game.objects.get(token=token)
-    print(g.current_round)
+    # print(g.current_round)
     g.current_round += 1
-    print(g.current_round)
+    # print(g.current_round)
     g.save()
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
@@ -160,7 +170,6 @@ def _login_user(request, user):
 
 
 def choose_name(request):
-    User = get_user_model()
     username = request.POST['username']
     try:
         user = User.objects.create(username=username)
