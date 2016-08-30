@@ -20,7 +20,11 @@ class Game(models.Model):
 
 # Keeps track of what game is attached to a user
 class UserGame(models.Model):
-    # USER --- USERGAME --- GAME
+    '''
+    USER --- USERGAME --\
+    USER --- USERGAME --- GAME
+    USER --- USERGAME --/
+    '''
     user = models.OneToOneField(User)
     game = models.ForeignKey(Game)
 
