@@ -13,7 +13,7 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import Game, MULTIPLAYER_MODE, UserGame
+from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame
 
 User = get_user_model()
 
@@ -105,9 +105,13 @@ def start_game(request, token):
     """
     The game is initiated through this view, not actually displayed though
     """
-    current_game = Game.objects.get(token=token)
-    current_game.game_active = True
-    current_game.save()
+    if request.session['game_mode'] == HOTSEAT_MODE:
+        current_game = Game.objects.get(token=token)
+        current_game.game_active = True
+        current_game.save()
+    else:
+        # TODO initialization for multi
+        raise NotImplementedError('No multiplayer mode yet')
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
