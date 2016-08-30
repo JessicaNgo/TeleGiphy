@@ -22,7 +22,7 @@ class Game(models.Model):
 class UserGame(models.Model):
     # USER --- USERGAME --- GAME
     user = models.OneToOneField(User)
-    game = models.OneToOneField(Game)
+    game = models.ForeignKey(Game)
 
     # token can be added if there are persistent users
     # token = models.CharField(max_length=16)
