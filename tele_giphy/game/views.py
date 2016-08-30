@@ -122,18 +122,13 @@ def choose_new_gif(request, token):
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
-
     g = Game.objects.get(token=token)
-    try:
-        g_round = g.gameround_set.get(round_number=g.current_round)
-        g_round.user_text = request.POST['phrase']
-        g_round.giphy_url = gif
-        g_round.save()
-    except:
-        g.gameround_set.create(round_number=g.current_round,
-                               user_text=request.POST['phrase'],
-                               giphy_url=gif)
-        g.save()
+
+    # If there is already a gif, update, otherwise get new gif
+    g, g_round = g.gameround_set.update_or_create(
+        round_number=g.current_round,
+        user_text=request.POST['phrase'],
+        giphy_url=gif)
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
