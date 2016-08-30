@@ -49,9 +49,21 @@ def new_game(request):
     game.save()
     if not request.user.is_authenticated():
         _give_random_name(request)
-    user_game = UserGame(user=request.user, game=game)
-    user_game.save()
+
+    try:
+        _attach_user_to_game(game, request)
+    except IntegrityError:
+        return redirect(reverse('game:index'))
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
+
+
+def _attach_user_to_game(game, request):
+    try:
+        UserGame.objects.get(user=request.user)
+        messages.error(request, 'You are already part of a game! (Game: {})'.format(request.user.usergame.game))
+        raise IntegrityError
+    except UserGame.DoesNotExist:
+        UserGame.objects.create(user=request.user, game=game)
 
 
 def join_game(request):
@@ -60,8 +72,6 @@ def join_game(request):
     If it exists, it should also check to see if the user is still able to join the game.
     """
     token = request.POST["join_token"]
-    # Check to see if game corresponding to game token exists
-    # An AND statement to check to see if the game is already "closed" should be added here
     try:
         game = Game.objects.get(token=token)
         if not game.mode == MULTIPLAYER_MODE:
@@ -71,8 +81,11 @@ def join_game(request):
         else:
             if not request.user.is_authenticated():
                 _give_random_name(request)
-            user_game = UserGame(user=request.user, game=game)
-            user_game.save()
+            try:
+                _attach_user_to_game(game, request)
+            except IntegrityError:
+                return redirect(reverse('game:index'))
+            request.session['game_mode'] = MULTIPLAYER_MODE
             return redirect(reverse('game:pre_game_room', args=(token,)))
     except Game.DoesNotExist:
         messages.error(request, 'Game not found.')
@@ -84,7 +97,8 @@ def pre_game_room(request, token):
     """
     This is where players come to wait until the game can start
     """
-    return render(request, 'game/pre_game_room.html', {"token": token})
+    users = User.objects.filter(usergame__game__token=token)
+    return render(request, 'game/pre_game_room.html', {"token": token, "users": users})
 
 
 def start_game(request, token):
