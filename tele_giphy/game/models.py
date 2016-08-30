@@ -20,6 +20,7 @@ class Game(models.Model):
 
 # Keeps track of what game is attached to a user
 class UserGame(models.Model):
+    # USER --- USERGAME --- GAME
     user = models.OneToOneField(User)
     game = models.OneToOneField(Game)
 

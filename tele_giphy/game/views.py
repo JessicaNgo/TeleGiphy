@@ -13,7 +13,7 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import Game, MULTIPLAYER_MODE
+from .models import Game, MULTIPLAYER_MODE, UserGame
 
 User = get_user_model()
 
@@ -49,6 +49,8 @@ def new_game(request):
     game.save()
     if not request.user.is_authenticated():
         _give_random_name(request)
+    user_game = UserGame(user=request.user, game=game)
+    user_game.save()
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
@@ -60,12 +62,22 @@ def join_game(request):
     token = request.POST["join_token"]
     # Check to see if game corresponding to game token exists
     # An AND statement to check to see if the game is already "closed" should be added here
-    if Game.objects.filter(token=token).exists():
-        if not request.user.is_authenticated():
-            _give_random_name(request)
-        return HttpResponseRedirect(reverse('game:pre_game_room', args=(token,)))
-    messages.error(request, "Token not found or invalid.")
-    return render(request, 'game/index.html', status=302)
+    try:
+        game = Game.objects.get(token=token)
+        if not game.mode == MULTIPLAYER_MODE:
+            messages.error(request, 'Not a multiplayer game.')
+        elif game.game_active or game.game_over:
+            messages.error(request, 'Cannot join that game, it has already started or ended.')
+        else:
+            if not request.user.is_authenticated():
+                _give_random_name(request)
+            user_game = UserGame(user=request.user, game=game)
+            user_game.save()
+            return redirect(reverse('game:pre_game_room', args=(token,)))
+    except Game.DoesNotExist:
+        messages.error(request, 'Game not found.')
+
+    return redirect(reverse('game:index'))
 
 
 def pre_game_room(request, token):
