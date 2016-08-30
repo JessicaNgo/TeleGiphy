@@ -31,6 +31,6 @@ class GameRound(models.Model):
     round_number = models.IntegerField()
     user_text = models.CharField(max_length=150)
     giphy_url = models.CharField(max_length=2083)  # 2083 is max of URL length
-    user = models.ForeignKey(User, related_name='gameround_user')
+    # user = models.ForeignKey(User, related_name='gameround_user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     origin_user = models.ForeignKey(UserGame, on_delete=models.CASCADE, related_name='origin_user', null=True)

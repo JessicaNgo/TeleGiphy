@@ -147,31 +147,6 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
-def gameover(request):
-    # Needs to fetchall records for a particular game
-    # For each player, get all associated rounds in order
-    
-    # mock result for html formatting
-    result = [
-        {'username': 'player1', 'rounds': 
-            [{'user_text': 'american psycho', 'giphy_url': 'http://media4.giphy.com/media/6nJ4uNiOwGqty/giphy.gif'},
-            {'user_text': 'christian bale', 'giphy_url': 'https://media3.giphy.com/media/yaYw1xR88ccJa/giphy.gif'}, 
-            {'user_text': 'kissing', 'giphy_url': 'http://media1.giphy.com/media/3o72F3zlbWvP4kJp4c/giphy.gif'}]
-        },
-        {'username': 'professor oak', 'rounds': 
-            [{'user_text': 'starter pokemon', 'giphy_url': 'http://media1.giphy.com/media/v6DHXicvXwJHi/giphy.gif'},
-            {'user_text': 'fire fox pokemon', 'giphy_url': 'http://media1.giphy.com/media/L2jkcvfvxkpby/giphy.gif'},
-            {'user_text': 'team ash pkmn', 'giphy_url': 'http://media4.giphy.com/media/eox3BwD5LHAQw/giphy.gif'}]
-        },
-        {'username': 'shibe', 'rounds':
-            [{'user_text': 'doge', 'giphy_url': 'https://media0.giphy.com/media/AFqfVr0uYIH96/giphy.gif'},
-            {'user_text': 'store shibe', 'giphy_url': 'http://media0.giphy.com/media/V2zGGB4ZWE5DW/giphy.gif'},
-            {'user_text': 'weird store', 'giphy_url': 'http://media4.giphy.com/media/a0FuEjOWAxIuk/giphy.gif'}]
-        }
-    ]
-
-    return render(request, 'game/gameover.html', {"result":result})
-
 def _login_user(request, user):
     """
     Log in a user without requiring credentials (using ``login`` from
@@ -203,3 +178,37 @@ def choose_name(request):
         messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
 
     return redirect(request.GET.get('next', '/'))
+
+def gameover(request, token):
+    # Fetch game token
+    g = Game.objects.get(token=token)
+
+    # Fetch game round records, ordered by origin user and round number
+    game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
+
+    # Users (for now), UserGame model not yet populating
+    all_origin_users = set([gRound.origin_user for gRound in game_rounds])
+    for gRound in game_rounds:
+        print(gRound.round_number)
+        print(gRound.giphy_url) 
+    
+    # mock result for html formatting
+    result = [
+        {'username': 'player1', 'rounds': 
+            [{'user_text': 'american psycho', 'giphy_url': 'http://media4.giphy.com/media/6nJ4uNiOwGqty/giphy.gif'},
+            {'user_text': 'christian bale', 'giphy_url': 'https://media3.giphy.com/media/yaYw1xR88ccJa/giphy.gif'}, 
+            {'user_text': 'kissing', 'giphy_url': 'http://media1.giphy.com/media/3o72F3zlbWvP4kJp4c/giphy.gif'}]
+        },
+        {'username': 'professor oak', 'rounds': 
+            [{'user_text': 'starter pokemon', 'giphy_url': 'http://media1.giphy.com/media/v6DHXicvXwJHi/giphy.gif'},
+            {'user_text': 'fire fox pokemon', 'giphy_url': 'http://media1.giphy.com/media/L2jkcvfvxkpby/giphy.gif'},
+            {'user_text': 'team ash pkmn', 'giphy_url': 'http://media4.giphy.com/media/eox3BwD5LHAQw/giphy.gif'}]
+        },
+        {'username': 'shibe', 'rounds':
+            [{'user_text': 'doge', 'giphy_url': 'https://media0.giphy.com/media/AFqfVr0uYIH96/giphy.gif'},
+            {'user_text': 'store shibe', 'giphy_url': 'http://media0.giphy.com/media/V2zGGB4ZWE5DW/giphy.gif'},
+            {'user_text': 'weird store', 'giphy_url': 'http://media4.giphy.com/media/a0FuEjOWAxIuk/giphy.gif'}]
+        }
+    ]
+
+    return render(request, 'game/gameover.html', {"result":result})
