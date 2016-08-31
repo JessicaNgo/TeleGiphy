@@ -227,19 +227,23 @@ def multi_gameplay(request, token):
     game = Game.objects.get(token=token)
     users = User.objects.filter(usergame__game__token=token)
     
-    temp_user_list = [user for user in users if user.username != request.user]
-    user_sequence = dict(enumerate(temp_user_list, start=1))
+    temp_user_list = [user.username for user in users if user.username != request.user]
+    request.session['user_sequence'] = dict(enumerate(temp_user_list, start=1))
     
     max_rounds = users.count()
     
     if game.current_round <= max_rounds:
         if game.current_round == 1:
             first_player_node = GifChainStarter.objects.get(user=request.user).first_node
-            next_user = user_sequence[(game.current_round)]
-            first_player_node.next_node = GifChainNode.objects.create(user=next_user)
-            first_player_node.save()
             gif = first_player_node.giphy_url
-            phrase = first_player_node.user_text    
+            phrase = first_player_node.user_text
+        else:
+            chain_owner_username = request.session['user_sequence'][(game.current_round)]
+            chain_owner_user_object = User.objects.get(username = chain_owner_username)
+            starter_chain = GifChainStarter.objects.get(user=chain_owner_user_object)
+            last_node = starter_chain.get_last_node
+            last_node.next_node = GifChainNode.objects.create(user = request.user)
+            #request.session['somekey'] = '123'
         context = {
                 'token': token,
                 'game': game,
@@ -250,7 +254,7 @@ def multi_gameplay(request, token):
             context['received_gif'] = received_gif
         except:
             pass
-            
+
         return render(request, 'game/multi_gameplay.html', context)
     else:
         #end da game

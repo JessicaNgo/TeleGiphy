@@ -53,6 +53,15 @@ class GifChainStarter(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     first_node = models.OneToOneField('GifChainNode', null=True)
     
+    def get_last_node(self):
+        node = first_node
+        while node != None:
+            last_node = node
+            node = node.next_node
+        return last_node
+       # return da last node in the chain  
+       # first --> "doge" first.next_node = dogegif --> "no doge" first.next_node.next_node = no doge gif --> "why no doge"  first.next_node.next_node.next_node = whynodogegif
+       # [1,2,3] + 4 --> last == 3 we put 4 after 3
     # def __str__(self):
     #     return user.username
 
