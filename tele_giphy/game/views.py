@@ -109,11 +109,13 @@ def start_game(request, token):
         current_game = Game.objects.get(token=token)
         current_game.game_active = True
         current_game.save()
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
         # TODO initialization for multi
-        raise NotImplementedError('No multiplayer mode yet')
-
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+        current_game = Game.objects.get(token=token)
+        current_game.game_active = True
+        current_game.save()
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
 def _login_user(request, user):
