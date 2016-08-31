@@ -108,7 +108,7 @@ def start_game(request, token):
     current_game = Game.objects.get(token=token)
     current_game.game_active = True
     current_game.save()
-    
+
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
@@ -146,13 +146,18 @@ def choose_name(request):
 
     return redirect(request.GET.get('next', '/'))
 
+
 # ================== HOTSEAT GAMEPLAY =========================
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
     if g.current_round == 4:
         print(g.gameround_set.all())
-        return render(request, 'game/hotseat_results.html', {"results": g.gameround_set.all()})
+        context = {"results": list(g.gameround_set.all())}
+        user = request.user
+        django_logout(request)
+        user.delete()
+        return render(request, 'game/hotseat_results.html', context)
     if g.current_round > 1:
         received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
     else:
@@ -198,8 +203,8 @@ def choose_new_gif(request, token):
     g, g_round = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user_text=request.POST['phrase'],
-        user = request.user,
-        defaults={'giphy_url':gif})
+        user=request.user,
+        defaults={'giphy_url': gif})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -213,21 +218,24 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
+
 # ================== MULTIPLAYER GAMEPLAY =========================
 
 def multi_gameplay(request, token):
-    #first lets only work on one game at a time
-    #TO DO:
-    #check if it is the players turn, if not, show a waiting for turn page, or anythingn really
-    #if it is the players turn, let them enter a phrase/guess, same as hotseat
-    #After passing on, redirect to results page, (results page will show nothing until final player goes_
-    #if the final player has entered the gif, results page will be displayed
-    #include a button on results page to refresh
-    
+    # first lets only work on one game at a time
+    # TO DO:
+    # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
+    # if it is the players turn, let them enter a phrase/guess, same as hotseat
+    # After passing on, redirect to results page, (results page will show nothing until final player goes_
+    # if the final player has entered the gif, results page will be displayed
+    # include a button on results page to refresh
+
     raise NotImplementedError("Hello")
-    
+
+
 def multi_choose_new_gif(request, token):
     raise NotImplementedError("Hello")
+
 
 def multi_pass_on(request, token):
     raise NotImplementedError("Hello")
