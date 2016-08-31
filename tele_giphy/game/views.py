@@ -1,5 +1,6 @@
 # Standard Library
 import random
+from uuid import uuid4
 
 # Django
 from django.conf import settings
@@ -12,16 +13,22 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import Game
+from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame
 
+User = get_user_model()
 
-# Create your views here.
 
 def index(request):
     """
     This is the index view. That is all.
     """
     return render(request, 'game/index.html')
+
+
+def _give_random_name(request):
+    user = User.objects.create(username=str(uuid4()))
+    _login_user(request, user)
+    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
 
 
 def new_game(request):
@@ -37,10 +44,26 @@ def new_game(request):
     while Game.objects.filter(token=new_token).exists():
         new_token = str(random.randint(1000, 9999))
     # Make new game in database with the token
-    g = Game(token=new_token)
-    g.save()
     request.session['game_mode'] = request.POST['game_mode']
+    game = Game(token=new_token, mode=request.session['game_mode'])
+    game.save()
+    if not request.user.is_authenticated():
+        _give_random_name(request)
+
+    try:
+        _attach_user_to_game(game, request)
+    except IntegrityError:
+        return redirect(reverse('game:index'))
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
+
+
+def _attach_user_to_game(game, request):
+    try:
+        UserGame.objects.get(user=request.user)
+        messages.error(request, 'You are already part of a game! (Game: {})'.format(request.user.usergame.game))
+        raise IntegrityError
+    except UserGame.DoesNotExist:
+        UserGame.objects.create(user=request.user, game=game)
 
 
 def join_game(request):
@@ -49,28 +72,46 @@ def join_game(request):
     If it exists, it should also check to see if the user is still able to join the game.
     """
     token = request.POST["join_token"]
-    # Check to see if game corresponding to game token exists
-    # An AND statement to check to see if the game is already "closed" should be added here
-    if Game.objects.filter(token=token).exists():
-        return HttpResponseRedirect(reverse('game:pre_game_room', args=(token,)))
-    messages.error(request, "Token not found or invalid.")
-    return render(request, 'game/index.html', status=302)
+    try:
+        game = Game.objects.get(token=token)
+        if not game.mode == MULTIPLAYER_MODE:
+            messages.error(request, 'Not a multiplayer game.')
+        elif game.game_active or game.game_over:
+            messages.error(request, 'Cannot join that game, it has already started or ended.')
+        else:
+            if not request.user.is_authenticated():
+                _give_random_name(request)
+            try:
+                _attach_user_to_game(game, request)
+            except IntegrityError:
+                return redirect(reverse('game:index'))
+            request.session['game_mode'] = MULTIPLAYER_MODE
+            return redirect(reverse('game:pre_game_room', args=(token,)))
+    except Game.DoesNotExist:
+        messages.error(request, 'Game not found.')
+
+    return redirect(reverse('game:index'))
 
 
 def pre_game_room(request, token):
     """
     This is where players come to wait until the game can start
     """
-    return render(request, 'game/pre_game_room.html', {"token": token})
+    users = User.objects.filter(usergame__game__token=token)
+    return render(request, 'game/pre_game_room.html', {"token": token, "users": users})
 
 
 def start_game(request, token):
     """
     The game is initiated through this view, not actually displayed though
     """
-    current_game = Game.objects.get(token=token)
-    current_game.game_active = True
-    current_game.save()
+    if request.session['game_mode'] == HOTSEAT_MODE:
+        current_game = Game.objects.get(token=token)
+        current_game.game_active = True
+        current_game.save()
+    else:
+        # TODO initialization for multi
+        raise NotImplementedError('No multiplayer mode yet')
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -118,31 +159,26 @@ def choose_new_gif(request, token):
     try:
         gif = response.json()['data']['image_url']
     except TypeError:
-        #messages.add_message(request, messages.ERROR, 'The phrase you entered could not produce a gif, please try something different.')
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
-
     g = Game.objects.get(token=token)
-    try:
-        g_round = g.gameround_set.get(round_number=g.current_round)
-        g_round.user_text = request.POST['phrase']
-        g_round.giphy_url = gif
-        g_round.save()
-    except:
-        g.gameround_set.create(round_number=g.current_round,
-                               user_text=request.POST['phrase'],
-                               giphy_url=gif)
-        g.save()
+
+    # If there is already a gif, update, otherwise get new gif
+    g, g_round = g.gameround_set.update_or_create(
+        round_number=g.current_round,
+        user_text=request.POST['phrase'],
+        giphy_url=gif,
+        user = request.user)
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
 def pass_on(request, token):
     g = Game.objects.get(token=token)
-    print(g.current_round)
+    # print(g.current_round)
     g.current_round += 1
-    print(g.current_round)
+    # print(g.current_round)
     g.save()
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
@@ -164,7 +200,6 @@ def _login_user(request, user):
 
 
 def choose_name(request):
-    User = get_user_model()
     username = request.POST['username']
     try:
         user = User.objects.create(username=username)

@@ -75,5 +75,16 @@
     </form>  
   </div>
 </div> 
+
+<br />
+
+<div class = "row">
+  <div class = "col-md-4 col-md-offset-4 text-center">
+    <form action = "{% url 'game:pass_on' token %}" method = 'post'>
+      {% csrf_token %}
+        <button type="submit" class="btn btn-default">End Game</button>
+    </form>  
+  </div>
+</div> 
 {% endblock %}
 
