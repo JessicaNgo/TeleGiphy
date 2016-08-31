@@ -27,6 +27,9 @@ class UserGame(models.Model):
     '''
     user = models.OneToOneField(User)
     game = models.ForeignKey(Game)
+    
+    def __str__(self):
+        return self.user.username
 
     # token can be added if there are persistent users
     # token = models.CharField(max_length=16)
