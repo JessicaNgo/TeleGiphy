@@ -65,6 +65,9 @@ def _attach_user_to_game(game, request):
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
 
+def _delete_game(game):
+    g = Game.objects.get(game=game)
+    g.delete()
 
 def join_game(request):
     """
@@ -229,8 +232,11 @@ def gameover(request, token):
     for gTurn in game_rounds:
         if gTurn.user_text == '':
             user_text = '[BLANK]'
+        else:
+            user_text = gTurn.user_text
         result[gTurn.origin_user]['rounds'].append(
             {'user_text':user_text, 
             'giphy_url':gTurn.giphy_url})
+    g.delete()
 
     return render(request, 'game/gameover.html', {"result":result})
