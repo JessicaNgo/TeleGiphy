@@ -13,7 +13,7 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame
+from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GifChainStarter, GifChainNode, UserGame 
 
 User = get_user_model()
 
@@ -112,6 +112,10 @@ def start_game(request, token):
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
+        users = User.objects.filter(usergame__game__token=token)
+        for user in users:
+            GifChainStarter.objects.create(user=user, game=current_game, first_node=GifChainNode.objects.create(user=user))
+            
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
@@ -168,7 +172,7 @@ def hotseat_gameplay(request, token):
             'phrase': phrase,
             'received_gif': received_gif
         }
-    except:
+    except: #no phrase has been entered by the user yet
         gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
         context = {
             'token': token,
@@ -219,14 +223,39 @@ def _is_player_turn(request, user):
     pass
 
 def multi_gameplay(request, token):
-    #TO DO:
+    #TO DO: determine player sequence
     game = Game.objects.get(token=token)
-    # users = game.usergame_set.users.all()
     users = User.objects.filter(usergame__game__token=token)
-    # for user in users:
-        
-    # player_order = dict(enumerate(users)) 
     
+    temp_user_list = [user for user in users if user.username != request.user]
+    user_sequence = dict(enumerate(temp_user_list, start=1))
+    
+    max_rounds = users.count()
+    
+    if game.current_round <= max_rounds:
+        if game.current_round == 1:
+            first_player_node = GifChainStarter.objects.get(user=request.user).first_node
+            next_user = user_sequence[(game.current_round)]
+            first_player_node.next_node = GifChainNode.objects.create(user=next_user)
+            first_player_node.save()
+            gif = first_player_node.giphy_url
+            phrase = first_player_node.user_text    
+        context = {
+                'token': token,
+                'game': game,
+                'gif': gif,
+                }
+        try:
+            context['phrase'] = phrase
+            context['received_gif'] = received_gif
+        except:
+            pass
+            
+        return render(request, 'game/multi_gameplay.html', context)
+    else:
+        #end da game
+        return render(request, 'game/multi_results.html')
+    # users = game.usergame_set.users.all()
     '''
     
     GifChainStarter ----- GIFCHAIN(USER) ----- GIFCHAIN(USER) ---- GIFCHAIN
@@ -235,20 +264,20 @@ def multi_gameplay(request, token):
       gif
       game
     '''
-    
-    
-    
-    #need gamerounds for each user? 
     #check if it is the players turn, if not, show a waiting for turn page, or anythingn really
     #if it is the players turn, let them enter a phrase/guess, same as hotseat
     #After passing on, redirect to results page, (results page will show nothing until final player goes_
     #if the final player has entered the gif, results page will be displayed
     #include a button on results page to refresh
     
-    raise NotImplementedError("Hello")
+    
     
 def multi_choose_new_gif(request, token):
     raise NotImplementedError("Hello")
 
 def multi_pass_on(request, token):
+    
+    game.current_round = game.current_round + 1
+    game.save() 
+    
     raise NotImplementedError("Hello")
