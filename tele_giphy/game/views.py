@@ -216,6 +216,14 @@ def pass_on(request, token):
 # ================== MULTIPLAYER GAMEPLAY =========================
 
 def multi_gameplay(request, token):
+    #first lets only work on one game at a time
+    #TO DO:
+    #check if it is the players turn, if not, show a waiting for turn page, or anythingn really
+    #if it is the players turn, let them enter a phrase/guess, same as hotseat
+    #After passing on, redirect to results page, (results page will show nothing until final player goes_
+    #if the final player has entered the gif, results page will be displayed
+    #include a button on results page to refresh
+    
     raise NotImplementedError("Hello")
     
 def multi_choose_new_gif(request, token):
