@@ -233,6 +233,12 @@ def multi_gameplay(request, token):
     max_rounds = users.count()
     
     if game.current_round <= max_rounds:
+        
+        context = {
+                'token': token,
+                'game': game
+                }
+        
         if game.current_round == 1:
             first_player_node = GifChainStarter.objects.get(user=request.user).first_node
             gif = first_player_node.giphy_url
@@ -242,16 +248,13 @@ def multi_gameplay(request, token):
             chain_owner_user_object = User.objects.get(username = chain_owner_username)
             starter_chain = GifChainStarter.objects.get(user=chain_owner_user_object)
             last_node = starter_chain.get_last_node
-            last_node.next_node = GifChainNode.objects.create(user = request.user)
-            #request.session['somekey'] = '123'
-        context = {
-                'token': token,
-                'game': game,
-                'gif': gif,
-                }
-        try:
-            context['phrase'] = phrase
+            received_gif = last_node.giphy_url
             context['received_gif'] = received_gif
+            # phrase = last_node.user_text
+        
+        try:
+            context['gif'] = last_node.next_node.giphy_url
+            context['phrase'] = last_node.next_node.user_text
         except:
             pass
 
@@ -277,11 +280,16 @@ def multi_gameplay(request, token):
     
     
 def multi_choose_new_gif(request, token):
+    
     raise NotImplementedError("Hello")
 
 def multi_pass_on(request, token):
-    
+    chain_owner_username = request.session['user_sequence'][(game.current_round)]
+    chain_owner_user_object = User.objects.get(username = chain_owner_username)
+    starter_chain = GifChainStarter.objects.get(user=chain_owner_user_object)
+    last_node = starter_chain.get_last_node
     game.current_round = game.current_round + 1
     game.save() 
     
+    last_node.next_node = GifChainNode.objects.create(user = request.user)
     raise NotImplementedError("Hello")
