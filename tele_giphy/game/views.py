@@ -219,13 +219,26 @@ def _is_player_turn(request, user):
     pass
 
 def multi_gameplay(request, token):
-    #first lets only work on one game at a time
     #TO DO:
-    #need to determine player order?
     game = Game.objects.get(token=token)
     # users = game.usergame_set.users.all()
     users = User.objects.filter(usergame__game__token=token)
-    player_order = dict(enumerate(users))
+    # for user in users:
+        
+    # player_order = dict(enumerate(users)) 
+    
+    '''
+    
+    GifChainStarter ----- GIFCHAIN(USER) ----- GIFCHAIN(USER) ---- GIFCHAIN
+      user
+      order (in sequence of players)
+      gif
+      game
+    '''
+    
+    
+    
+    #need gamerounds for each user? 
     #check if it is the players turn, if not, show a waiting for turn page, or anythingn really
     #if it is the players turn, let them enter a phrase/guess, same as hotseat
     #After passing on, redirect to results page, (results page will show nothing until final player goes_

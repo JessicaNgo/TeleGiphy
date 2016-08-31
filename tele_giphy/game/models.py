@@ -46,3 +46,17 @@ class GameRound(models.Model):
     user = models.ForeignKey(User, related_name='gameround_user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     origin_user = models.ForeignKey(UserGame, on_delete=models.CASCADE, related_name='origin_user', null=True)
+    
+    
+class GifChainStarter(models.Model):
+    user = models.OneToOneField(User)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    first_node = models.OneToOneField('GifChainNode')
+    
+    # def __str__(self):
+    #     return user.username
+
+class GifChainNode(models.Model):
+    next_node = models.OneToOneField('self', related_name='previous_node')  #  GifChainStart.first_node ---> GifChainNode.next_node <---> GifChainNode.previous_node
+    giphy_url = models.CharField(max_length=2083)  # 2083 is max of URL length
+    user = models.ForeignKey(User, related_name='gif_owner')
