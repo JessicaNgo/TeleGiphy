@@ -168,8 +168,8 @@ def choose_new_gif(request, token):
     g, g_round = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user_text=request.POST['phrase'],
-        giphy_url=gif,
-        user = request.user)
+        user = request.user,
+        defaults = {'giphy_url':gif})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -226,6 +226,7 @@ def gameover(request, token):
     for gRound in game_rounds:
         print(gRound.round_number)
         print(gRound.giphy_url) 
+        print(gRound.user)
     
     # mock result for html formatting
     result = [
