@@ -12,8 +12,15 @@ urlpatterns = [
     url(r'^join_game$', views.join_game, name='join_game'),
     url(r'^pre_game_room/(?P<token>[0-9]+)/$', views.pre_game_room, name='pre_game_room'),
     url(r'^pre_game_room/(?P<token>[0-9]+)/start_game$', views.start_game, name='start_game'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/$', views.hotseat_gameplay, name='game_lobby'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/choose_new_gif$', views.choose_new_gif, name='choose_new_gif'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/next$', views.pass_on, name='pass_on'),
+    
+    url(r'^hotseat/(?P<token>[0-9]+)/$', views.hotseat_gameplay, name='game_lobby'),
+    url(r'^hotseat/(?P<token>[0-9]+)/choose_new_gif$', views.choose_new_gif, name='choose_new_gif'),
+    url(r'^hotseat/(?P<token>[0-9]+)/next$', views.pass_on, name='pass_on'),
+    
+    url(r'^game_lobby/(?P<token>[0-9]+)/$', views.multi_gameplay, name='multi_game_lobby'),
+    url(r'^game_lobby/(?P<token>[0-9]+)/choose_new_gif$', views.multi_choose_new_gif, name='multi_choose_new_gif'),
+    url(r'^game_lobby/(?P<token>[0-9]+)/next$', views.multi_pass_on, name='multi_pass_on'),
+    
+    
     url(r'^choose_name', views.choose_name, name='choose_name')
 ]

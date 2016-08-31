@@ -116,7 +116,38 @@ def start_game(request, token):
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
-# ==================
+def _login_user(request, user):
+    """
+    Log in a user without requiring credentials (using ``login`` from
+    ``django.contrib.auth``, first finding a matching backend).
+
+    """
+    from django.contrib.auth import load_backend, login
+    if not hasattr(user, 'backend'):
+        for backend in settings.AUTHENTICATION_BACKENDS:
+            if user == load_backend(backend).get_user(user.pk):
+                user.backend = backend
+                break
+    if hasattr(user, 'backend'):
+        return login(request, user)
+
+
+def choose_name(request):
+    username = request.POST['username']
+    try:
+        user = User.objects.create(username=username)
+        if request.user.is_authenticated():
+            old_user = request.user
+            django_logout(request)
+            old_user.delete()
+        _login_user(request, user)
+        messages.success(request, 'You have chosen "{}"!'.format(username))
+    except IntegrityError:
+        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
+
+    return redirect(request.GET.get('next', '/'))
+
+# ================== HOTSEAT GAMEPLAY =========================
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
@@ -183,34 +214,13 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
+# ================== MULTIPLAYER GAMEPLAY =========================
 
-def _login_user(request, user):
-    """
-    Log in a user without requiring credentials (using ``login`` from
-    ``django.contrib.auth``, first finding a matching backend).
+def multi_gameplay(request, token):
+    raise NotImplementedError("Hello")
+    
+def multi_choose_new_gif(request, token):
+    raise NotImplementedError("Hello")
 
-    """
-    from django.contrib.auth import load_backend, login
-    if not hasattr(user, 'backend'):
-        for backend in settings.AUTHENTICATION_BACKENDS:
-            if user == load_backend(backend).get_user(user.pk):
-                user.backend = backend
-                break
-    if hasattr(user, 'backend'):
-        return login(request, user)
-
-
-def choose_name(request):
-    username = request.POST['username']
-    try:
-        user = User.objects.create(username=username)
-        if request.user.is_authenticated():
-            old_user = request.user
-            django_logout(request)
-            old_user.delete()
-        _login_user(request, user)
-        messages.success(request, 'You have chosen "{}"!'.format(username))
-    except IntegrityError:
-        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
-
-    return redirect(request.GET.get('next', '/'))
+def multi_pass_on(request, token):
+    raise NotImplementedError("Hello")
