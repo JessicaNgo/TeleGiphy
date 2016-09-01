@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 # Localfolder
 from .giphy import gif_random
@@ -60,7 +61,7 @@ def new_game(request):
 def _attach_user_to_game(game, request):
     try:
         UserGame.objects.get(user=request.user)
-        messages.error(request, 'You are already part of a game! (Game: {})'.format(request.user.usergame.game))
+        messages.error(request, mark_safe('You are already part of a game: {token}. <a href="/pre_game_room/{token}">Click here to join this game.</a>'.format(token=request.user.usergame.game)))
         raise IntegrityError
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
