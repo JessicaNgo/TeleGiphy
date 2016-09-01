@@ -54,7 +54,7 @@
       <div class="col-md-8 col-md-offset-2 messages">
         {% for message in messages %}
           <div class="alert {% if message.tags %} {{ message.tags }}{% endif %}" role="alert">
-            {% if message.tags == 'alert-danger' %}<strong>{% endif %}{{ message }}
+            {% if message.tags == 'alert-danger' %}<strong>{% endif %}{{ message|safe }}
             {% if message.tags == 'alert-danger' %}</strong>{% endif %}
           </div>
         {% endfor %}
