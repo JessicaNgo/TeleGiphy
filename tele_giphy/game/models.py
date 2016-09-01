@@ -45,9 +45,5 @@ class GameRound(models.Model):
 
 # Keeps track of records after gameover
 class GameOverRecords(models.Model):
-    token = models.CharField() # This is specific to gameover, not same as Game.token
-    round_number = models.IntegerField()
-    user_text = models.CharField(max_length=150)
-    giphy_url = models.CharField(max_length=2083)  # 2083 is max of URL length
-    user = models.CharField(max_length=60)
-    origin_user = models.CharField(max_length=60)
+    token = models.CharField(max_length=100) # This is specific to gameover, not same as Game.token
+    records = models.CharField(max_length=500000)

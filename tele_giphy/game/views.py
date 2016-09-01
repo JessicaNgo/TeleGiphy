@@ -1,6 +1,7 @@
 # Standard Library
 import random
 from uuid import uuid4
+import json
 
 # Django
 from django.conf import settings
@@ -13,7 +14,7 @@ from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame
+from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame, GameOverRecords
 
 User = get_user_model()
 
@@ -172,7 +173,7 @@ def choose_new_gif(request, token):
         round_number=g.current_round,
         user_text=request.POST['phrase'],
         user = request.user,
-        defaults = {'giphy_url':gif})
+        defaults = {'giphy_url': gif})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -237,6 +238,23 @@ def gameover(request, token):
         result[gTurn.origin_user]['rounds'].append(
             {'user_text':user_text, 
             'giphy_url':gTurn.giphy_url})
-    g.delete()
+
+    # g.delete()
+    result_json = json.dumps(result)
+
+    # gameover = GameOverRecords(token='12345', records=result_json)
+    # gameover.save()
+
+    gameover, created = GameOverRecords.objects.get_or_create(
+        token='12345', 
+        defaults={'records': result_json})
+
+    go = GameOverRecords.objects.get(token='12345')
+    print(created)
+    print(go)
+    print(go.records)
+    print(json.loads(go.records))
+
+
 
     return render(request, 'game/gameover.html', {"result":result})
