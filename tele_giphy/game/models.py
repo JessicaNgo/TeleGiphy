@@ -34,7 +34,6 @@ class UserGame(models.Model):
     # def __str__(self):
     #     return str(self.username)
 
-
 # Keeps track of game rounds
 class GameRound(models.Model):
     round_number = models.IntegerField()
@@ -42,4 +41,13 @@ class GameRound(models.Model):
     giphy_url = models.CharField(max_length=2083)  # 2083 is max of URL length
     user = models.ForeignKey(User, related_name='gameround_user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    origin_user = models.ForeignKey(UserGame, on_delete=models.CASCADE, related_name='origin_user', null=True)
+    origin_user = models.ForeignKey(UserGame, related_name='origin_user', null=True)
+
+# Keeps track of records after gameover
+class GameOverRecords(models.Model):
+    token = models.CharField() # This is specific to gameover, not same as Game.token
+    round_number = models.IntegerField()
+    user_text = models.CharField(max_length=150)
+    giphy_url = models.CharField(max_length=2083)  # 2083 is max of URL length
+    user = models.CharField(max_length=60)
+    origin_user = models.CharField(max_length=60)
