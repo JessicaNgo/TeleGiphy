@@ -60,7 +60,8 @@ def new_game(request):
 def _attach_user_to_game(game, request):
     try:
         UserGame.objects.get(user=request.user)
-        messages.error(request, 'You are already part of a game! (Game: {})'.format(request.user.usergame.game))
+        url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
+        messages.error(request, 'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(token=request.user.usergame.game,url=url))
         raise IntegrityError
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
