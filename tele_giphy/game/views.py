@@ -1,20 +1,22 @@
 # Standard Library
+import json
 import random
 from uuid import uuid4
-import json
 
 # Django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as django_logout
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame, GameOverRecords
+from .models import (
+    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame,
+)
 
 User = get_user_model()
 
@@ -62,14 +64,18 @@ def _attach_user_to_game(game, request):
     try:
         UserGame.objects.get(user=request.user)
         url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
-        messages.error(request, 'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(token=request.user.usergame.game,url=url))
+        messages.error(request,
+                       'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+                           token=request.user.usergame.game, url=url))
         raise IntegrityError
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
 
+
 def _delete_game(game):
     g = Game.objects.get(game=game)
     g.delete()
+
 
 def join_game(request):
     """
@@ -240,7 +246,6 @@ def multi_gameplay(request, token):
     raise NotImplementedError("Hello")
 
 
-
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
     # End of game token
@@ -266,9 +271,9 @@ def gameover(request, token):
             else:
                 user_text = gTurn.user_text
             result[gTurn.origin_user]['rounds'].append(
-                {'user_text':user_text, 
-                'giphy_url':gTurn.giphy_url})
-        
+                {'user_text': user_text,
+                 'giphy_url': gTurn.giphy_url})
+
         # Signout of user session, delete user and game
         user = request.user
         django_logout(request)
@@ -279,9 +284,9 @@ def gameover(request, token):
         postGameToken = str(uuid4())
         result_json = json.dumps(result)
         GameOverRecords.objects.get_or_create(
-            token= postGameToken, 
+            token=postGameToken,
             defaults={'records': result_json})
-    
+
     # Gets Previously stored gameover records
     elif isinstance(g, GameOverRecords):
         result = json.loads(g.records)
@@ -291,7 +296,7 @@ def gameover(request, token):
 
     # result_url = reverse('gameover', args=(postGameToken,))
 
-    return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
+    return render(request, 'game/gameover.html', {"result": result, "token": postGameToken})
 
 
 def multi_choose_new_gif(request, token):
