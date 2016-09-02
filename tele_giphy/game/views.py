@@ -266,4 +266,8 @@ def gameover(request, token):
     else:
         raise Http404
 
-    return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
+    # result_url = reverse('gameover', args=(postGameToken,))
+
+    return render(request, 'game/gameover.html', 
+        {"result":result,
+         "token":postGameToken})
