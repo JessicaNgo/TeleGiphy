@@ -223,15 +223,11 @@ def gameover(request, token):
     # End of game token
     if len(token) == 4:
         g = get_object_or_404(Game, token=token)
-        # try:
-        #     g = Game.objects.get(token=token)
-        # except Game.DoesNotExist:
-        #     return redirect(reverse('game:index'))
     # (Maybe) gameover records token
     elif len(token) > 4:
         g = get_object_or_404(GameOverRecords, token=token)
 
-
+    # 
     if isinstance(g, Game):
         # Fetch game round records, ordered by origin user and round number
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
@@ -240,7 +236,7 @@ def gameover(request, token):
         all_origin_users = set([gRound.origin_user for gRound in game_rounds])
         result = {name: {'rounds': []} for name in all_origin_users}
 
-        # Populate dict for gameover display
+        # Populate dict for gameover display and record storage
         for gTurn in game_rounds:
             if gTurn.user_text == '':
                 user_text = '[BLANK]'
@@ -249,18 +245,21 @@ def gameover(request, token):
             result[gTurn.origin_user]['rounds'].append(
                 {'user_text':user_text, 
                 'giphy_url':gTurn.giphy_url})
+        # Need to make this sign out of user session instead so username can be reused
         g.delete()
 
         # Stores a json of all players actions in post-gameover model
+        postGameToken = str(uuid4())
         result_json = json.dumps(result)
         GameOverRecords.objects.get_or_create(
-            token='12345', 
+            token= postGameToken, 
             defaults={'records': result_json})
-
+    
+    # Gets Previously stored gameover records
     elif isinstance(g, GameOverRecords):
-        print('check gameover records')
-        g = GameOverRecords.objects.get(token='12345')
         result = json.loads(g.records)
-    # else:
-
-    return render(request, 'game/gameover.html', {"result":result})
+        postGameToken = g.token
+    else:
+        raise Http404
+# 7dbfffe1-3c82-48fc-b133-5adc6cfe72e6
+    return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
