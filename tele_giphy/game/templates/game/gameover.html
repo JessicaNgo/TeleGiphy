@@ -3,11 +3,9 @@
 
 {% block main_content %}
 <div class="row">
-  <div class="col-md-2"></div>
-  <div class="col-md-8">
+  <div class="col-md-8 col-md-offset-2">
       <div class='text-center'>
         <h1>Gameover Token: {{ token }}</h1>
-        <ul>
         {% for player, actions in result.items %}
           <h2>PLAYER: {{ player }}</h2>
           <br>
@@ -20,7 +18,6 @@
           {% endfor %}
           <br>
         {% endfor %}
-        </ul>
       </div>
       <br>
     <div class="footer">
@@ -29,7 +26,6 @@
     </div>
 
   </div>
-  <div class="col-md-2"></div>
 
 </div>
 
