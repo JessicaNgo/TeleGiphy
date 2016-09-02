@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as django_logout
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 
 # Localfolder
@@ -219,10 +219,20 @@ def choose_name(request):
     return redirect(request.GET.get('next', '/'))
 
 def gameover(request, token):
+    # Checks what kind of token is passed and fetch object
+    # End of game token
     if len(token) == 4:
-        # Fetch game token
-        g = Game.objects.get(token=token)
+        g = get_object_or_404(Game, token=token)
+        # try:
+        #     g = Game.objects.get(token=token)
+        # except Game.DoesNotExist:
+        #     return redirect(reverse('game:index'))
+    # (Maybe) gameover records token
+    elif len(token) > 4:
+        g = get_object_or_404(GameOverRecords, token=token)
 
+
+    if isinstance(g, Game):
         # Fetch game round records, ordered by origin user and round number
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
 
@@ -240,16 +250,17 @@ def gameover(request, token):
                 {'user_text':user_text, 
                 'giphy_url':gTurn.giphy_url})
         g.delete()
-        
+
+        # Stores a json of all players actions in post-gameover model
         result_json = json.dumps(result)
-        gameover, created = GameOverRecords.objects.get_or_create(
+        GameOverRecords.objects.get_or_create(
             token='12345', 
             defaults={'records': result_json})
 
-        go = GameOverRecords.objects.get(token='12345')
-        result = json.loads(go.records)
-    else:
-        go = GameOverRecords.objects.get(token='12345')
-        result = json.loads(go.records)
+    elif isinstance(g, GameOverRecords):
+        print('check gameover records')
+        g = GameOverRecords.objects.get(token='12345')
+        result = json.loads(g.records)
+    # else:
 
     return render(request, 'game/gameover.html', {"result":result})
