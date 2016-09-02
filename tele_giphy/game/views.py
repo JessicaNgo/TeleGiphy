@@ -219,12 +219,12 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
-"""
-def _login_user(request, user):
 
-    Log in a user without requiring credentials (using ``login`` from
-    ``django.contrib.auth``, first finding a matching backend).
-=======
+# def _login_user(request, user):
+
+#     Log in a user without requiring credentials (using ``login`` from
+#     ``django.contrib.auth``, first finding a matching backend).
+# =======
 
 # ================== MULTIPLAYER GAMEPLAY =========================
 
@@ -240,7 +240,7 @@ def multi_gameplay(request, token):
     raise NotImplementedError("Hello")
 
 
-"""
+
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
     # End of game token
@@ -291,15 +291,12 @@ def gameover(request, token):
 
     # result_url = reverse('gameover', args=(postGameToken,))
 
-    return render(request, 'game/gameover.html', 
-        {"result":result,
-         "token":postGameToken})
+    return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
 
-"""
+
 def multi_choose_new_gif(request, token):
     raise NotImplementedError("Hello")
 
 
 def multi_pass_on(request, token):
     raise NotImplementedError("Hello")
-"""
