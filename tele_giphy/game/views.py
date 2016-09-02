@@ -109,18 +109,49 @@ def start_game(request, token):
     """
     The game is initiated through this view, not actually displayed though
     """
+    current_game = Game.objects.get(token=token)
+    current_game.game_active = True
+    current_game.save()
+
     if request.session['game_mode'] == HOTSEAT_MODE:
-        current_game = Game.objects.get(token=token)
-        current_game.game_active = True
-        current_game.save()
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
-        # TODO initialization for multi
-        raise NotImplementedError('No multiplayer mode yet')
-
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
-# ==================
+def _login_user(request, user):
+    """
+    Log in a user without requiring credentials (using ``login`` from
+    ``django.contrib.auth``, first finding a matching backend).
+
+    """
+    from django.contrib.auth import load_backend, login
+    if not hasattr(user, 'backend'):
+        for backend in settings.AUTHENTICATION_BACKENDS:
+            if user == load_backend(backend).get_user(user.pk):
+                user.backend = backend
+                break
+    if hasattr(user, 'backend'):
+        return login(request, user)
+
+
+def choose_name(request):
+    username = request.POST['username']
+    try:
+        user = User.objects.create(username=username)
+        if request.user.is_authenticated():
+            old_user = request.user
+            django_logout(request)
+            old_user.delete()
+        _login_user(request, user)
+        messages.success(request, 'You have chosen "{}"!'.format(username))
+    except IntegrityError:
+        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
+
+    return redirect(request.GET.get('next', '/'))
+
+
+# ================== HOTSEAT GAMEPLAY =========================
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
@@ -172,8 +203,8 @@ def choose_new_gif(request, token):
     g, g_round = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user_text=request.POST['phrase'],
-        user = request.user,
-        defaults = {'giphy_url': gif})
+        user=request.user,
+        defaults={'giphy_url': gif})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
@@ -187,37 +218,28 @@ def pass_on(request, token):
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
+"""
 def _login_user(request, user):
-    """
+
     Log in a user without requiring credentials (using ``login`` from
     ``django.contrib.auth``, first finding a matching backend).
+=======
 
-    """
-    from django.contrib.auth import load_backend, login
-    if not hasattr(user, 'backend'):
-        for backend in settings.AUTHENTICATION_BACKENDS:
-            if user == load_backend(backend).get_user(user.pk):
-                user.backend = backend
-                break
-    if hasattr(user, 'backend'):
-        return login(request, user)
+# ================== MULTIPLAYER GAMEPLAY =========================
+
+def multi_gameplay(request, token):
+    # first lets only work on one game at a time
+    # TO DO:
+    # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
+    # if it is the players turn, let them enter a phrase/guess, same as hotseat
+    # After passing on, redirect to results page, (results page will show nothing until final player goes_
+    # if the final player has entered the gif, results page will be displayed
+    # include a button on results page to refresh
+
+    raise NotImplementedError("Hello")
 
 
-def choose_name(request):
-    username = request.POST['username']
-    try:
-        user = User.objects.create(username=username)
-        if request.user.is_authenticated():
-            old_user = request.user
-            django_logout(request)
-            old_user.delete()
-        _login_user(request, user)
-        messages.success(request, 'You have chosen "{}"!'.format(username))
-    except IntegrityError:
-        messages.error(request, 'Sorry, "{}" is already taken :('.format(username))
-
-    return redirect(request.GET.get('next', '/'))
-
+"""
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
     # End of game token
@@ -271,3 +293,12 @@ def gameover(request, token):
     return render(request, 'game/gameover.html', 
         {"result":result,
          "token":postGameToken})
+
+"""
+def multi_choose_new_gif(request, token):
+    raise NotImplementedError("Hello")
+
+
+def multi_pass_on(request, token):
+    raise NotImplementedError("Hello")
+"""
