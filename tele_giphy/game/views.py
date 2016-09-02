@@ -219,42 +219,37 @@ def choose_name(request):
     return redirect(request.GET.get('next', '/'))
 
 def gameover(request, token):
-    # Fetch game token
-    g = Game.objects.get(token=token)
+    if len(token) == 4:
+        # Fetch game token
+        g = Game.objects.get(token=token)
 
-    # Fetch game round records, ordered by origin user and round number
-    game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
+        # Fetch game round records, ordered by origin user and round number
+        game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
 
-    # Users from game (for now), UserGame model not yet populating
-    all_origin_users = set([gRound.origin_user for gRound in game_rounds])
-    result = {name: {'rounds': []} for name in all_origin_users}
+        # Users from game (for now), UserGame model not yet populating
+        all_origin_users = set([gRound.origin_user for gRound in game_rounds])
+        result = {name: {'rounds': []} for name in all_origin_users}
 
-    # Populate dict for gameover display
-    for gTurn in game_rounds:
-        if gTurn.user_text == '':
-            user_text = '[BLANK]'
-        else:
-            user_text = gTurn.user_text
-        result[gTurn.origin_user]['rounds'].append(
-            {'user_text':user_text, 
-            'giphy_url':gTurn.giphy_url})
+        # Populate dict for gameover display
+        for gTurn in game_rounds:
+            if gTurn.user_text == '':
+                user_text = '[BLANK]'
+            else:
+                user_text = gTurn.user_text
+            result[gTurn.origin_user]['rounds'].append(
+                {'user_text':user_text, 
+                'giphy_url':gTurn.giphy_url})
+        g.delete()
+        
+        result_json = json.dumps(result)
+        gameover, created = GameOverRecords.objects.get_or_create(
+            token='12345', 
+            defaults={'records': result_json})
 
-    # g.delete()
-    result_json = json.dumps(result)
-
-    # gameover = GameOverRecords(token='12345', records=result_json)
-    # gameover.save()
-
-    gameover, created = GameOverRecords.objects.get_or_create(
-        token='12345', 
-        defaults={'records': result_json})
-
-    go = GameOverRecords.objects.get(token='12345')
-    print(created)
-    print(go)
-    print(go.records)
-    print(json.loads(go.records))
-
-
+        go = GameOverRecords.objects.get(token='12345')
+        result = json.loads(go.records)
+    else:
+        go = GameOverRecords.objects.get(token='12345')
+        result = json.loads(go.records)
 
     return render(request, 'game/gameover.html', {"result":result})
