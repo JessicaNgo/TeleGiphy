@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block main_content %}
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+      <div class='text-center'>
+        <h1>Gameover Token: {{ token }}</h1>
+        <!-- Make Token a URL if game has ended and been deleted -->
+        <!-- {% if token|length == 4 %} -->
+        <!-- {% else %} -->
+        <!-- <h1>Gameover Token: <a href="{{ request_url }}">{{ token }}</a></h1> -->
+        <!-- {% endif %} -->
+        
+        {% for player, actions in result.items %}
+          <h2>PLAYER: {{ player }}</h2>
+          <br>
+          {% for round in actions.rounds %}          
+            <p>
+            <h3>Round {{ forloop.counter }}</h3>
+            <b>Text Entered:</b> {{ round.user_text }}<br>
+            <a href="{{ round.giphy_url }}"><img src="{{ round.giphy_url }}"></a>
+            </p>
+          {% endfor %}
+          <br>
+        {% endfor %}
+      </div>
+      <br>
+    <div class="footer">
+    <hr>
+    <p>Powered by <a href="http://giphy.com/"><img src="{% static 'img/giphy_logo_laser_black.gif' %}" alt=""></a></p>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %} <!-- body -->

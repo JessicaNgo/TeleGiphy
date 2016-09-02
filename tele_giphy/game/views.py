@@ -1,6 +1,7 @@
 # Standard Library
 import random
 from uuid import uuid4
+import json
 
 # Django
 from django.conf import settings
@@ -8,12 +9,12 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as django_logout
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 
 # Localfolder
 from .giphy import gif_random
-from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame
+from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, UserGame, GameOverRecords
 
 User = get_user_model()
 
@@ -66,6 +67,9 @@ def _attach_user_to_game(game, request):
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
 
+def _delete_game(game):
+    g = Game.objects.get(game=game)
+    g.delete()
 
 def join_game(request):
     """
@@ -154,11 +158,7 @@ def hotseat_gameplay(request, token):
     g = Game.objects.get(token=token)
     if g.current_round == 4:
         print(g.gameround_set.all())
-        context = {"results": list(g.gameround_set.all())}
-        user = request.user
-        django_logout(request)
-        user.delete()
-        return render(request, 'game/hotseat_results.html', context)
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     if g.current_round > 1:
         received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
     else:
@@ -220,6 +220,12 @@ def pass_on(request, token):
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
+# def _login_user(request, user):
+
+#     Log in a user without requiring credentials (using ``login`` from
+#     ``django.contrib.auth``, first finding a matching backend).
+# =======
+
 # ================== MULTIPLAYER GAMEPLAY =========================
 
 def multi_gameplay(request, token):
@@ -232,6 +238,60 @@ def multi_gameplay(request, token):
     # include a button on results page to refresh
 
     raise NotImplementedError("Hello")
+
+
+
+def gameover(request, token):
+    # Checks what kind of token is passed and fetch object
+    # End of game token
+    if len(token) == 4:
+        g = get_object_or_404(Game, token=token)
+    # (Maybe) gameover records token
+    elif len(token) > 4:
+        g = get_object_or_404(GameOverRecords, token=token)
+
+    # 
+    if isinstance(g, Game):
+        # Fetch game round records, ordered by origin user and round number
+        game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
+
+        # Users from game (for now), UserGame model not yet populating
+        all_origin_users = set([gRound.origin_user for gRound in game_rounds])
+        result = {name: {'rounds': []} for name in all_origin_users}
+
+        # Populate dict for gameover display and record storage
+        for gTurn in game_rounds:
+            if gTurn.user_text == '':
+                user_text = '[BLANK]'
+            else:
+                user_text = gTurn.user_text
+            result[gTurn.origin_user]['rounds'].append(
+                {'user_text':user_text, 
+                'giphy_url':gTurn.giphy_url})
+        
+        # Signout of user session, delete user and game
+        user = request.user
+        django_logout(request)
+        if user.is_authenticated:
+            user.delete()
+
+        # Stores a json of all players actions in post-gameover model
+        postGameToken = str(uuid4())
+        result_json = json.dumps(result)
+        GameOverRecords.objects.get_or_create(
+            token= postGameToken, 
+            defaults={'records': result_json})
+    
+    # Gets Previously stored gameover records
+    elif isinstance(g, GameOverRecords):
+        result = json.loads(g.records)
+        postGameToken = g.token
+    else:
+        raise Http404
+
+    # result_url = reverse('gameover', args=(postGameToken,))
+
+    return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
 
 
 def multi_choose_new_gif(request, token):
