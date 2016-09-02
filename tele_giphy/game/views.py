@@ -245,8 +245,12 @@ def gameover(request, token):
             result[gTurn.origin_user]['rounds'].append(
                 {'user_text':user_text, 
                 'giphy_url':gTurn.giphy_url})
-        # Need to make this sign out of user session instead so username can be reused
-        g.delete()
+        
+        # Signout of user session, delete user and game
+        user = request.user
+        django_logout(request)
+        if user.is_authenticated:
+            user.delete()
 
         # Stores a json of all players actions in post-gameover model
         postGameToken = str(uuid4())
@@ -261,5 +265,5 @@ def gameover(request, token):
         postGameToken = g.token
     else:
         raise Http404
-# 7dbfffe1-3c82-48fc-b133-5adc6cfe72e6
+
     return render(request, 'game/gameover.html', {"result":result, "token":postGameToken})
