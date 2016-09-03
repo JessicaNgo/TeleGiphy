@@ -124,7 +124,7 @@ def start_game(request, token):
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
-        #initiallizes round 1 for all users
+        #initiallizes round 1 for all users ###
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
             GameRound.objects.create(
