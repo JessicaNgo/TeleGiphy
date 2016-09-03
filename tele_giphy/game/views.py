@@ -125,12 +125,13 @@ def start_game(request, token):
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
         #initiallizes round 1 for all users
+        users = User.objects.filter(usergame__game__token=token)
         for user in users:
             GameRound.objects.create(
                 round_number=1,
                 user=request.user,
                 game=current_game,
-                origin_user = request.user
+                origin_user = request.user.usergame
                 )
         
         #remove this code below - linked list implementation
@@ -205,12 +206,6 @@ def hotseat_gameplay(request, token):
         }
     return render(request, 'game/hotseat_gameplay.html', context)
 
-
-# Not sure what this is for..? \/\/\/
-# def select_phrase(request, token):
-#     phrase = request.POST['phrase']
-
-
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
     try:
@@ -241,12 +236,6 @@ def pass_on(request, token):
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
 
-# def _login_user(request, user):
-
-#     Log in a user without requiring credentials (using ``login`` from
-#     ``django.contrib.auth``, first finding a matching backend).
-# =======
-
 # ================== MULTIPLAYER GAMEPLAY =========================
 
 def _is_player_turn(request, user):
@@ -255,24 +244,32 @@ def _is_player_turn(request, user):
 def multi_gameplay(request, token):
     game = Game.objects.get(token=token)
     users = Users.objects.filter(usergame__game__token=token)
-    temp_user_list = [user.username for user in users if user.username != request.user]
-    request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=1))
+    temp_user_list = [user.username for user in users if user.username]
+    request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
+    request.session['player_round'] = 1 #increment each time local player passes on gif
+    context = {
+        'token': token,
+        'game':game
+    }
     
     max_rounds = users.count()
+    
     if game.current_round == 1:
-        gif = "TEMP" #game.gameround_set.filter()
-        phrase = "temp"
-        context = {
-            'token': token,
-            'game':game,
-        }
-        try:
-            context['gif'] = gif
-            context['phrase'] = phrase
-        except:
-            pass
-    if game.current_round <= max_rounds:
-        
+        game_round = game.gameround_set.filter(origin_user=request.user)
+    elif game.current_round <= max_rounds:
+        current_player_round = session['player_round']
+        # next_user_origin = request.session['other_user_origins'][current_player_round].
+        # previous_game_round = game.gameround_set.filter(origin_user=next_user_origin, round_number = session[])
+    #TODO:     
+    #having trouble determining player order
+    gif = game_round.giphy_url
+    phrase = game_round.user_text
+    
+    try:
+        context['gif'] = gif
+        context['phrase'] = phrase
+    except:
+        pass
     # context = {
     #         'token': token,
     #         'game': g,
@@ -287,7 +284,7 @@ def multi_gameplay(request, token):
 #     #After passing on, redirect to results page, (results page will show nothing until final player goes_
 #     #if the final player has entered the gif, results page will be displayed
 #     #include a button on results page to refresh
-    raise NotImplemented("Hello")
+        raise NotImplemented("Hello")
 
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
