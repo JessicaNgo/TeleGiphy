@@ -124,9 +124,19 @@ def start_game(request, token):
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
-        users = User.objects.filter(usergame__game__token=token)
+        #initiallizes round 1 for all users
         for user in users:
-            GifChainStarter.objects.create(user=user, game=current_game, first_node=GifChainNode.objects.create(user=user))
+            GameRound.objects.create(
+                round_number=1,
+                user=request.user,
+                game=current_game,
+                origin_user = request.user
+                )
+        
+        #remove this code below - linked list implementation
+        # users = User.objects.filter(usergame__game__token=token)
+        # for user in users:
+        #     GifChainStarter.objects.create(user=user, game=current_game, first_node=GifChainNode.objects.create(user=user))
             
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
@@ -243,6 +253,40 @@ def _is_player_turn(request, user):
     pass
 
 def multi_gameplay(request, token):
+    game = Game.objects.get(token=token)
+    users = Users.objects.filter(usergame__game__token=token)
+    temp_user_list = [user.username for user in users if user.username != request.user]
+    request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=1))
+    
+    max_rounds = users.count()
+    if game.current_round == 1:
+        gif = "TEMP" #game.gameround_set.filter()
+        phrase = "temp"
+        context = {
+            'token': token,
+            'game':game,
+        }
+        try:
+            context['gif'] = gif
+            context['phrase'] = phrase
+        except:
+            pass
+    if game.current_round <= max_rounds:
+        
+    # context = {
+    #         'token': token,
+    #         'game': g,
+    #         'gif': gif,
+    #         'phrase': phrase,
+    #         'received_gif': received_gif
+    #     }
+    #display recieved gif #display phrase #display gif
+    
+    # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
+#     #if it is the players turn, let them enter a phrase/guess, same as hotseat
+#     #After passing on, redirect to results page, (results page will show nothing until final player goes_
+#     #if the final player has entered the gif, results page will be displayed
+#     #include a button on results page to refresh
     raise NotImplemented("Hello")
 
 def gameover(request, token):
