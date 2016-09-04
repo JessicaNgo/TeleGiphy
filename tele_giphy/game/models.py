@@ -8,7 +8,7 @@ HOTSEAT_MODE = "hotseat"
 
 # Keeps tabs on a game token, whether game has started, and ended
 class Game(models.Model):
-    token = models.CharField(max_length=16)
+    token = models.CharField(max_length=16, unique=True)
     game_active = models.BooleanField(default='False')
     game_over = models.BooleanField(default='False')
     current_round = models.IntegerField(default=1)
@@ -18,7 +18,7 @@ class Game(models.Model):
         return self.token
 
 
-# Keeps track of what game is attached to a user
+# Keeps track of what game is attached to a user;
 class UserGame(models.Model):
     '''
     USER --- USERGAME --\
@@ -49,3 +49,5 @@ class GameRound(models.Model):
 class GameOverRecords(models.Model):
     token = models.CharField(max_length=100)  # This is specific to gameover, not same as Game.token
     records = models.CharField(max_length=500000)
+    game_token = models.CharField(max_length=16)
+    mode = models.CharField(max_length=11, default=HOTSEAT_MODE)
