@@ -129,15 +129,10 @@ def start_game(request, token):
         for user in users:
             GameRound.objects.create(
                 round_number=1,
-                user=request.user,
+                user=user.user,
                 game=current_game,
-                origin_user=request.user.usergame
+                origin_user=user.user
             )
-
-        # remove this code below - linked list implementation
-        # users = User.objects.filter(usergame__game__token=token)
-        # for user in users:
-        #     GifChainStarter.objects.create(user=user, game=current_game, first_node=GifChainNode.objects.create(user=user))
 
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
@@ -175,6 +170,7 @@ def choose_name(request):
 
 
 # ================== HOTSEAT GAMEPLAY =========================
+
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
@@ -227,9 +223,7 @@ def choose_new_gif(request, token):
 
 def pass_on(request, token):
     g = Game.objects.get(token=token)
-    # print(g.current_round)
     g.current_round += 1
-    # print(g.current_round)
     g.save()
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
@@ -286,6 +280,12 @@ def multi_gameplay(request, token):
 #     #include a button on results page to refresh
         raise NotImplemented("Hello")
 
+
+def waiting_room(request, token):
+    pass
+
+
+# ================== GAMEOVER =========================
 
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
