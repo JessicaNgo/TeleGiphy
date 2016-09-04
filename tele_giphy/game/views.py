@@ -67,8 +67,8 @@ def _attach_user_to_game(game, request):
         UserGame.objects.get(user=request.user)
         url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
         messages.error(request,
-                       'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
-                           token=request.user.usergame.game, url=url))
+            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+                token=request.user.usergame.game, url=url))
         raise IntegrityError
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
@@ -106,12 +106,11 @@ def join_game(request):
     return redirect(reverse('game:index'))
 
 
+# This is where players come to wait until the game can start
 def pre_game_room(request, token):
-    """
-    This is where players come to wait until the game can start
-    """
     users = User.objects.filter(usergame__game__token=token)
-    return render(request, 'game/pre_game_room.html', {"token": token, "users": users})
+    return render(request, 'game/pre_game_room.html', {
+        "token": token, "users": users})
 
 
 def start_game(request, token):
@@ -125,21 +124,21 @@ def start_game(request, token):
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
-        #initiallizes round 1 for all users ###
+        # initiallizes round 1 for all users ###
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
             GameRound.objects.create(
                 round_number=1,
                 user=request.user,
                 game=current_game,
-                origin_user = request.user.usergame
-                )
-        
-        #remove this code below - linked list implementation
+                origin_user=request.user.usergame
+            )
+
+        # remove this code below - linked list implementation
         # users = User.objects.filter(usergame__game__token=token)
         # for user in users:
         #     GifChainStarter.objects.create(user=user, game=current_game, first_node=GifChainNode.objects.create(user=user))
-            
+
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
@@ -179,9 +178,6 @@ def choose_name(request):
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
-    if g.current_round == 4:
-        print(g.gameround_set.all())
-        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     if g.current_round > 1:
         received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
     else:
@@ -197,7 +193,8 @@ def hotseat_gameplay(request, token):
             'phrase': phrase,
             'received_gif': received_gif
         }
-    except: #no phrase has been entered by the user yet
+    # no phrase has been entered by the user yet
+    except:
         gif = static('img/giphy_static.gif')
         context = {
             'token': token,
@@ -206,6 +203,7 @@ def hotseat_gameplay(request, token):
             'received_gif': received_gif
         }
     return render(request, 'game/hotseat_gameplay.html', context)
+
 
 def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
@@ -242,12 +240,13 @@ def pass_on(request, token):
 def _is_player_turn(request, user):
     pass
 
+
 def multi_gameplay(request, token):
     game = Game.objects.get(token=token)
-    users = Users.objects.filter(usergame__game__token=token)
+    users = User.objects.filter(usergame__game__token=token)
     temp_user_list = [user.username for user in users if user.username]
     request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
-    request.session['player_round'] = 1 #increment each time local player passes on gif
+    request.session['player_round'] = 1  # increment each time local player passes on gif
     context = {
         'token': token,
         'game':game
@@ -287,16 +286,37 @@ def multi_gameplay(request, token):
 #     #include a button on results page to refresh
         raise NotImplemented("Hello")
 
+
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
     # End of game token
     if len(token) == 4:
-        g = get_object_or_404(Game, token=token)
+        # Check if gameover already happened, if so display postGameToken
+        try:
+            gameover = GameOverRecords.objects.get(game_token=token)
+            # If game ended before actions were made
+            if len(gameover.records) == 2:
+                return render(request, 'game/gameover.html', {
+                    "result": "Game ended without any rounds",
+                    "doge": gif_random('doge').json()['data']['image_url']})
+            # If game ended with actions
+            result_url = reverse('game:gameover', args=(gameover.token,))
+            return render(request, 'game/gameover.html', {
+                "result": '',
+                "token": gameover.token,
+                "request_url": result_url})
+        # Game has not ended
+        except GameOverRecords.DoesNotExist:
+            g = get_object_or_404(Game, token=token)
+
     # (Maybe) gameover records token
     elif len(token) > 4:
         g = get_object_or_404(GameOverRecords, token=token)
 
-    # 
+    # Type of game that's being played
+    game_mode = g.mode
+
+    # Processes gameRounds and stores it
     if isinstance(g, Game):
         # Fetch game round records, ordered by origin user and round number
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
@@ -315,18 +335,21 @@ def gameover(request, token):
                 {'user_text': user_text,
                  'giphy_url': gTurn.giphy_url})
 
+        # Stores a json of all players actions in post-gameover model
+        postGameToken = str(uuid4())
+        result_json = json.dumps(result)
+        GameOverRecords.objects.create(
+            token=postGameToken,
+            records=result_json,
+            game_token=g.token,
+            mode=game_mode)
+
         # Signout of user session, delete user and game
         user = request.user
         django_logout(request)
         if user.is_authenticated:
             user.delete()
-
-        # Stores a json of all players actions in post-gameover model
-        postGameToken = str(uuid4())
-        result_json = json.dumps(result)
-        GameOverRecords.objects.get_or_create(
-            token=postGameToken,
-            defaults={'records': result_json})
+        g.delete()
 
     # Gets Previously stored gameover records
     elif isinstance(g, GameOverRecords):
@@ -335,9 +358,17 @@ def gameover(request, token):
     else:
         raise Http404
 
-    # result_url = reverse('gameover', args=(postGameToken,))
+    # If game ended before actions were made
+    if len(result) < 1:
+        return render(request, 'game/gameover.html', {
+            "result": "Game ended without any rounds",
+            "doge": gif_random('doge').json()['data']['image_url']})
 
-    return render(request, 'game/gameover.html', {"result": result, "token": postGameToken})
+    # Gameover screen
+    return render(request, 'game/gameover.html', {
+        "result": result,
+        "token": postGameToken,
+        "game_mode": game_mode})
 
 
 ###remove code below when gameplay is done, for reference

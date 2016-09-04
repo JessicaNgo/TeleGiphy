@@ -5,25 +5,48 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
       <div class='text-center'>
-        <h1>Gameover Token: {{ token }}</h1>
-        <!-- Make Token a URL if game has ended and been deleted -->
-        <!-- {% if token|length == 4 %} -->
-        <!-- {% else %} -->
-        <!-- <h1>Gameover Token: <a href="{{ request_url }}">{{ token }}</a></h1> -->
-        <!-- {% endif %} -->
-        
-        {% for player, actions in result.items %}
-          <h2>PLAYER: {{ player }}</h2>
-          <br>
-          {% for round in actions.rounds %}          
-            <p>
-            <h3>Round {{ forloop.counter }}</h3>
-            <b>Text Entered:</b> {{ round.user_text }}<br>
-            <a href="{{ round.giphy_url }}"><img src="{{ round.giphy_url }}"></a>
-            </p>
-          {% endfor %}
-          <br>
-        {% endfor %}
+        {# Game ended without any rounds in hotseat #}
+        {% if result == "Game ended without any rounds" %}
+          <h1>{{ result }}</h1>
+          <br><br>
+          <h2>Has a doge!</h2>
+          <a href="{{ doge }}"><img src="{{ doge }}"></a>
+        {# If game is over and user tries to go to game over using game token #}
+        {% elif result|length == 0 %}
+          <h1>Game is over!<br><br>Use following token to see game record:<br><a href="{{ request_url }}">{{ token }}</a></h1>
+          <h2><b>Save the above token! This page may be deleted at any time.</b></h2> 
+        {# Response for after game has just ended #}
+        {% else %}
+          <h1>Gameover Token: {{ token }}</h1>
+          {# Hotseat play, does not show usernames #}
+          {% if game_mode == "hotseat" %}
+              {% for player, actions in result.items %}
+                {% for round in actions.rounds %}
+                  <br>          
+                  <p>
+                    <h3>Round {{ forloop.counter }}</h3>
+                    <h4>player {{ forloop.counter }}</h2>
+                    <h4>Text Entered:</b> {{ round.user_text }}</h4><br>
+                    <a href="{{ round.giphy_url }}"><img src="{{ round.giphy_url }}"></a>
+                  </p>
+                {% endfor %}
+              {% endfor %}
+          {# Multiplayer play, shows usernames #}
+          {% elif game_mode == "multiplayer" %}
+            {% for player, actions in result.items %}
+              <h2>PLAYER: {{ player }}</h2>
+              <br>
+              {% for round in actions.rounds %}          
+                <p>
+                <h3>Round {{ forloop.counter }}</h3>
+                <b>Text Entered:</b> {{ round.user_text }}<br>
+                <a href="{{ round.giphy_url }}"><img src="{{ round.giphy_url }}"></a>
+                </p>
+              {% endfor %}
+              <br>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
       </div>
       <br>
     <div class="footer">
@@ -35,4 +58,4 @@
 
 </div>
 
-{% endblock %} <!-- body -->
+{% endblock %} 
