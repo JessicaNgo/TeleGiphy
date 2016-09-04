@@ -179,9 +179,9 @@ def hotseat_gameplay(request, token):
     else:
         received_gif = ""
     try:
-        # g.gameround_set.get(round_number=g.current_round)
-        gif = g.gameround_set.get(round_number=g.current_round).giphy_url
-        phrase = g.gameround_set.get(round_number=g.current_round).user_text
+        game_round = g.gameround_set.get(round_number=g.current_round)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
         context = {
             'token': token,
             'game': g,
@@ -212,7 +212,7 @@ def choose_new_gif(request, token):
     g = Game.objects.get(token=token)
 
     # If there is already a gif, update, otherwise get new gif
-    g, g_round = g.gameround_set.update_or_create(
+    g.gameround_set.update_or_create(
         round_number=g.current_round,
         user_text=request.POST['phrase'],
         user=request.user,
@@ -225,8 +225,11 @@ def pass_on(request, token):
     g = Game.objects.get(token=token)
     g.current_round += 1
     g.save()
-
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    # if g.current_round > 
+    if g.mode == 'hotseat':
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    elif g.mode == 'multiplayer':
+        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
 
 # ================== MULTIPLAYER GAMEPLAY =========================
