@@ -65,8 +65,8 @@ def _attach_user_to_game(game, request):
         UserGame.objects.get(user=request.user)
         url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
         messages.error(request,
-                       'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
-                           token=request.user.usergame.game, url=url))
+            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+                token=request.user.usergame.game, url=url))
         raise IntegrityError
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
@@ -109,7 +109,8 @@ def pre_game_room(request, token):
     This is where players come to wait until the game can start
     """
     users = User.objects.filter(usergame__game__token=token)
-    return render(request, 'game/pre_game_room.html', {"token": token, "users": users})
+    return render(request, 'game/pre_game_room.html', {
+        "token": token, "users": users})
 
 
 def start_game(request, token):
@@ -243,29 +244,31 @@ def multi_gameplay(request, token):
     raise NotImplementedError("Hello")
 
 
-def gameover(request, token): 
+def gameover(request, token):
     # Checks what kind of token is passed and fetch object
     # End of game token
     if len(token) == 4:
         # Check if gameover already happened, if so display postGameToken
         try:
             gameover = GameOverRecords.objects.get(game_token=token)
+            # If game ended before actions were made
             if len(gameover.records) == 2:
                 return render(request, 'game/gameover.html', {
-                    "result": "Game ended without any rounds", 
+                    "result": "Game ended without any rounds",
                     "doge": gif_random('doge').json()['data']['image_url']})
-
+            # If game ended with actions
             result_url = reverse('game:gameover', args=(gameover.token,))
             return render(request, 'game/gameover.html', {
-                "result": '', 
+                "result": '',
                 "token": gameover.token,
-                "request_url":result_url})
+                "request_url": result_url})
+        # Game has not ended
         except GameOverRecords.DoesNotExist:
             g = get_object_or_404(Game, token=token)
-    
+
     # (Maybe) gameover records token
     elif len(token) > 4:
-        g = get_object_or_404(GameOverRecords, token=token) 
+        g = get_object_or_404(GameOverRecords, token=token)
 
     # Type of game that's being played
     game_mode = g.mode
@@ -293,10 +296,10 @@ def gameover(request, token):
         postGameToken = str(uuid4())
         result_json = json.dumps(result)
         GameOverRecords.objects.create(
-            token = postGameToken,
-            records = result_json, 
-            game_token = g.token,
-            mode = game_mode)
+            token=postGameToken,
+            records=result_json,
+            game_token=g.token,
+            mode=game_mode)
 
         # Signout of user session, delete user and game
         user = request.user
@@ -312,15 +315,17 @@ def gameover(request, token):
     else:
         raise Http404
 
+    # If game ended before actions were made
     if len(result) < 1:
         return render(request, 'game/gameover.html', {
-            "result": "Game ended without any rounds", 
+            "result": "Game ended without any rounds",
             "doge": gif_random('doge').json()['data']['image_url']})
-    else:
-        return render(request, 'game/gameover.html', {
-            "result": result, 
-            "token": postGameToken, 
-            "game_mode": game_mode})
+
+    # Gameover screen
+    return render(request, 'game/gameover.html', {
+        "result": result,
+        "token": postGameToken,
+        "game_mode": game_mode})
 
 
 def multi_choose_new_gif(request, token):

@@ -50,4 +50,4 @@ class GameOverRecords(models.Model):
     token = models.CharField(max_length=100)  # This is specific to gameover, not same as Game.token
     records = models.CharField(max_length=500000)
     game_token = models.CharField(max_length=16)
-    mode = models.CharField(max_length=11, default=HOTSEAT_MODE) 
+    mode = models.CharField(max_length=11, default=HOTSEAT_MODE)
