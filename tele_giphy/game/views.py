@@ -246,7 +246,7 @@ def multi_gameplay(request, token):
     raise NotImplementedError("Hello")
 
 
-def gameover(request, token):
+def gameover(request, token): 
     # Checks what kind of token is passed and fetch object
     # End of game token
     if len(token) == 4:
@@ -260,13 +260,16 @@ def gameover(request, token):
                 "request_url":result_url})
         except GameOverRecords.DoesNotExist:
             g = get_object_or_404(Game, token=token)
+    
     # (Maybe) gameover records token
     elif len(token) > 4:
-        g = get_object_or_404(GameOverRecords, token=token)
+        g = get_object_or_404(GameOverRecords, token=token) 
+
+    # Type of game that's being played
+    game_mode = g.mode
 
     # Processes gameRounds and stores it
     if isinstance(g, Game):
-
         # Fetch game round records, ordered by origin user and round number
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
 
@@ -284,20 +287,21 @@ def gameover(request, token):
                 {'user_text': user_text,
                  'giphy_url': gTurn.giphy_url})
 
-        # Signout of user session, delete user and game
-        user = request.user
-        django_logout(request)
-        if user.is_authenticated:
-            user.delete()
-        g.delete()
-
         # Stores a json of all players actions in post-gameover model
         postGameToken = str(uuid4())
         result_json = json.dumps(result)
         GameOverRecords.objects.create(
             token = postGameToken,
             records = result_json, 
-            game_token = g.token)
+            game_token = g.token,
+            mode = game_mode)
+
+        # Signout of user session, delete user and game
+        user = request.user
+        django_logout(request)
+        if user.is_authenticated:
+            user.delete()
+        g.delete()
 
     # Gets Previously stored gameover records
     elif isinstance(g, GameOverRecords):
@@ -306,7 +310,10 @@ def gameover(request, token):
     else:
         raise Http404
 
-    return render(request, 'game/gameover.html', {"result": result, "token": postGameToken})
+    return render(request, 'game/gameover.html', {
+        "result": result, 
+        "token": postGameToken, 
+        "game_mode": game_mode})
 
 
 def multi_choose_new_gif(request, token):

@@ -6,11 +6,12 @@
   <div class="col-md-8 col-md-offset-2">
       <div class='text-center'>
         {% if result|length == 0 %}
-          <h1>Gameover Token: <a href="{{ request_url }}">{{ token }}</a></h1> <!--a herf this-->
+          <h1>Game is over!<br><br>Use following token to see game record:<br><a href="{{ request_url }}">{{ token }}</a></h1>
+          <h2><b>Save the above token! This page may be deleted at any time.</b></h2> 
         {% else %}
           <h1>Gameover Token: {{ token }}</h1>
           {# Hotseat play, does not show usernames #}
-          {% if request.session.game_mode == "hotseat" %}
+          {% if game_mode == "hotseat" %}
               {% for player, actions in result.items %}
                 {% for round in actions.rounds %}
                   <br>          
@@ -23,7 +24,7 @@
                 {% endfor %}
               {% endfor %}
           {# Multiplayer play, shows usernames #}
-          {% elif request.session.game_mode == "multiplayer" %}
+          {% elif game_mode == "multiplayer" %}
             {% for player, actions in result.items %}
               <h2>PLAYER: {{ player }}</h2>
               <br>
@@ -49,4 +50,4 @@
 
 </div>
 
-{% endblock %} <!-- body -->
+{% endblock %} 
