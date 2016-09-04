@@ -250,6 +250,11 @@ def gameover(request, token):
         # Check if gameover already happened, if so display postGameToken
         try:
             gameover = GameOverRecords.objects.get(game_token=token)
+            if len(gameover.records) == 2:
+                return render(request, 'game/gameover.html', {
+                    "result": "Game ended without any rounds", 
+                    "doge": gif_random('doge').json()['data']['image_url']})
+
             result_url = reverse('game:gameover', args=(gameover.token,))
             return render(request, 'game/gameover.html', {
                 "result": '', 
@@ -307,10 +312,15 @@ def gameover(request, token):
     else:
         raise Http404
 
-    return render(request, 'game/gameover.html', {
-        "result": result, 
-        "token": postGameToken, 
-        "game_mode": game_mode})
+    if len(result) < 1:
+        return render(request, 'game/gameover.html', {
+            "result": "Game ended without any rounds", 
+            "doge": gif_random('doge').json()['data']['image_url']})
+    else:
+        return render(request, 'game/gameover.html', {
+            "result": result, 
+            "token": postGameToken, 
+            "game_mode": game_mode})
 
 
 def multi_choose_new_gif(request, token):

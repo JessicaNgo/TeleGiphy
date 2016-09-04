@@ -5,9 +5,17 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
       <div class='text-center'>
-        {% if result|length == 0 %}
+        {# Game ended without any rounds in hotseat #}
+        {% if result == "Game ended without any rounds" %}
+          <h1>{{ result }}</h1>
+          <br><br>
+          <h2>Has a doge!</h2>
+          <a href="{{ doge }}"><img src="{{ doge }}"></a>
+        {# If game is over and user tries to go to game over using game token #}
+        {% elif result|length == 0 %}
           <h1>Game is over!<br><br>Use following token to see game record:<br><a href="{{ request_url }}">{{ token }}</a></h1>
           <h2><b>Save the above token! This page may be deleted at any time.</b></h2> 
+        {# Response for after game has just ended #}
         {% else %}
           <h1>Gameover Token: {{ token }}</h1>
           {# Hotseat play, does not show usernames #}
