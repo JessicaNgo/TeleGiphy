@@ -162,9 +162,6 @@ def choose_name(request):
 def hotseat_gameplay(request, token):
     # if roundnumber of game is 1 (first turn)
     g = Game.objects.get(token=token)
-    if g.current_round == 4:
-        print(g.gameround_set.all())
-        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     if g.current_round > 1:
         received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
     else:
