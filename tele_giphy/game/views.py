@@ -11,6 +11,7 @@ from django.db import IntegrityError
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.contrib.staticfiles.templatetags.staticfiles import static
 
 # Localfolder
 from .giphy import gif_random
@@ -197,7 +198,7 @@ def hotseat_gameplay(request, token):
             'received_gif': received_gif
         }
     except: #no phrase has been entered by the user yet
-        gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
+        gif = static('img/giphy_static.gif')
         context = {
             'token': token,
             'game': g,
