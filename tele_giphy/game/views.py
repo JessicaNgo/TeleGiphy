@@ -168,9 +168,9 @@ def hotseat_gameplay(request, token):
     else:
         received_gif = ""
     try:
-        # g.gameround_set.get(round_number=g.current_round)
-        gif = g.gameround_set.get(round_number=g.current_round).giphy_url
-        phrase = g.gameround_set.get(round_number=g.current_round).user_text
+        game_round = g.gameround_set.get(round_number=g.current_round)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
         context = {
             'token': token,
             'game': g,
