@@ -117,13 +117,14 @@ def start_game(request, token):
     """
     The game is initiated through this view, not actually displayed though
     """
+    # current_game can use refactoring to be queryset for easier updating and cleaner code
     current_game = Game.objects.get(token=token)
     current_game.game_active = True
     current_game.save()
 
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
-    else:
+    elif request.session['game_mode'] == MULTIPLAYER_MODE:
         # initiallizes round 1 for all users in a multiplayer game
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
@@ -137,6 +138,7 @@ def start_game(request, token):
                 game=current_game,
                 origin_user=user)
         current_game.total_rounds = len(users)
+        current_game.mode = MULTIPLAYER_MODE
         current_game.save()
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
@@ -253,7 +255,7 @@ def _is_player_turn(request, user):
     pass
 
 
-def multi_gameplay(request, username, token):
+def multi_gameplay(request, token):
 # Each request recognizes which player is making the request due to session cookies
     # You can test this by having private browser windows and logging in as other players
 # This should mimic 1 round of hotseat and store info as the request user in the model
@@ -263,13 +265,14 @@ def multi_gameplay(request, username, token):
 
     # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
-        game_rounds = game.gameround_set.get(round_number=game.current_round - 1)
+        game_rounds = game.gameround_set.filter(round_number=game.current_round - 1)
         # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
     else:
-        game_rounds = game.gameround_set.get(round_number=game.current_round)
+        game_rounds = game.gameround_set.filter(round_number=game.current_round)
     
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
-    request_index = ordered_users.index(request.user)
+    request_index = ordered_users.index(request.user) #Index doesn't work, needs iteration, refactor later
+    print ('This is the request index: {}'.format(request_index))
     if request_index > game.total_rounds:
         pass
 
