@@ -233,10 +233,10 @@ def pass_on(request, token):
     g = Game.objects.get(token=token)
     g.current_round += 1
     g.save()
-    if g.current_round > g.total_rounds:
-        return HttpResponseRedirect(reverse('game:gameover_waiting_room', args=(token,)))
-    elif g.mode == 'hotseat':
+    if g.mode == 'hotseat':
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    elif g.current_round > g.total_rounds:
+        return HttpResponseRedirect(reverse('game:gameover_waiting_room', args=(token,)))
     elif g.mode == 'multiplayer':
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
@@ -255,6 +255,7 @@ def multi_gameplay(request, token):
 # Waiting redirects to game_lobby when all players have gone 
 
     game = Game.objects.get(token=token)
+    context = gameplay_context(g, token)
 
     # users = User.objects.filter(usergame__game__token=token)
     # temp_user_list = [user.username for user in users if user.username]
