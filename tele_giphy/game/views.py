@@ -256,28 +256,36 @@ def multi_gameplay(request, username, token):
 # After a player passes/commits to gif, they go to waiting
 # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
-    
+
     # Gets origin user for record keeping
     if game.current_round > 1:
-        origin_user = game.gameround_set.get(round_number=game.current_round - 1).origin_user
+        game_rounds = game.gameround_set.get(round_number=game.current_round - 1)
+        # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
     else:
-        origin_user = request.user
+        game_rounds = game.gameround_set.get(round_number=game.current_round)
     
-    game.gameround_set.get_or_create(
-        round_number=game.current_round,
-        user=request.user,
-        origin_user=origin_user
-    )
+    ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
+    request_index = ordered_users.index(request.user)
+
+    for player_round in game_rounds:
+        origin_user = player_round.
+        game.gameround_set.get_or_create(
+            round_number=game.current_round,
+            user=request.user,
+            origin_user=origin_user
+        )
 
     context = gameplay_context(g, token)
-    ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
+    
     """
-    # Determine index of user in ordered_users
-    # if current player index == total_rounds:
-    #   Get gif for index[0] origin_player
-    # else:
-    #   look at last round origin_player index
-    #   Get gif for index[i+1]
+    Determine index of current user in ordered_users
+    
+    if current player index > total_rounds + current_round_#:
+        Get gif for index[0] origin_player
+    else:
+        look at last round
+        find move player at current player index[i-1] did
+        Get gif for index[i+1]
     """
 
 
