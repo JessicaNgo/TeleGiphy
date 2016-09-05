@@ -132,7 +132,8 @@ def start_game(request, token):
                 user=user.user,
                 game=current_game,
                 origin_user=user.user)
-        current_game.total_rounds = len(users)
+        """Commented out for now for testing purposes"""
+        # current_game.total_rounds = len(users)
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
@@ -168,35 +169,42 @@ def choose_name(request):
     return redirect(request.GET.get('next', '/'))
 
 
-# ================== HOTSEAT GAMEPLAY =========================
-
-def hotseat_gameplay(request, token):
-    # if roundnumber of game is 1 (first turn)
-    g = Game.objects.get(token=token)
-    if g.current_round > 1:
-        received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
+# Gets context of previous and current player actions
+def gameplay_context(game, token):
+    if game.current_round > 1:
+        # gif from last player
+        received_gif = game.gameround_set.get(round_number=game.current_round - 1).giphy_url
     else:
+        # if roundnumber of game is 1 (first turn)
         received_gif = ""
     try:
-        game_round = g.gameround_set.get(round_number=g.current_round)
+        game_round = game.gameround_set.get(round_number=game.current_round)
         gif = game_round.giphy_url
         phrase = game_round.user_text
         context = {
             'token': token,
-            'game': g,
+            'game': game,
             'gif': gif,
             'phrase': phrase,
             'received_gif': received_gif
         }
-    # no phrase has been entered by the user yet
+    # no phrase has been entered by the player yet
     except:
         gif = static('img/giphy_static.gif')
         context = {
             'token': token,
-            'game': g,
+            'game': game,
             'gif': gif,
             'received_gif': received_gif
         }
+    return context
+
+
+# ================== HOTSEAT GAMEPLAY =========================
+
+def hotseat_gameplay(request, token):
+    g = Game.objects.get(token=token)
+    context = gameplay_context(g, token)
     return render(request, 'game/hotseat_gameplay.html', context)
 
 
@@ -240,34 +248,42 @@ def _is_player_turn(request, user):
 
 
 def multi_gameplay(request, token):
+# Each request recognizes which player is making the request due to session cookies
+    # You can test this by having private browser windows and logging in as other players
+# This should mimic 1 round of hotseat and store info as the request user in the model
+# After a player passes/commits to gif, it goes to waiting
+# Waiting redirects to game_lobby when all players have gone 
+
     game = Game.objects.get(token=token)
-    users = User.objects.filter(usergame__game__token=token)
-    temp_user_list = [user.username for user in users if user.username]
-    request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
-    request.session['player_round'] = 1  # increment each time local player passes on gif
-    context = {
-        'token': token,
-        'game':game
-    }
+
+    # users = User.objects.filter(usergame__game__token=token)
+    # temp_user_list = [user.username for user in users if user.username]
+    # request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
+    # request.session['player_round'] = 1  # increment each time local player passes on gif
+
+    # context = {
+    #     'token': token,
+    #     'game':game
+    # }
     
-    max_rounds = users.count()
+    # max_rounds = game.
     
-    if game.current_round == 1:
-        game_round = game.gameround_set.filter(origin_user=request.user)
-    elif game.current_round <= max_rounds:
-        current_player_round = session['player_round']
-        # next_user_origin = request.session['other_user_origins'][current_player_round].
-        # previous_game_round = game.gameround_set.filter(origin_user=next_user_origin, round_number = session[])
-    #TODO:     
-    #having trouble determining player order
-    gif = game_round.giphy_url
-    phrase = game_round.user_text
+    # if game.current_round == 1:
+    #     game_round = game.gameround_set.filter(origin_user=request.user)
+    # elif game.current_round <= max_rounds:
+    #     current_player_round = session['player_round']
+    #     # next_user_origin = request.session['other_user_origins'][current_player_round].
+    #     # previous_game_round = game.gameround_set.filter(origin_user=next_user_origin, round_number = session[])
+    # #TODO:     
+    # #having trouble determining player order
+    # gif = game_round.giphy_url
+    # phrase = game_round.user_text
     
-    try:
-        context['gif'] = gif
-        context['phrase'] = phrase
-    except:
-        pass
+    # try:
+    #     context['gif'] = gif
+    #     context['phrase'] = phrase
+    # except:
+    #     pass
     # context = {
     #         'token': token,
     #         'game': g,
@@ -278,11 +294,11 @@ def multi_gameplay(request, token):
     #display recieved gif #display phrase #display gif
     
     # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
-#     #if it is the players turn, let them enter a phrase/guess, same as hotseat
-#     #After passing on, redirect to results page, (results page will show nothing until final player goes_
-#     #if the final player has entered the gif, results page will be displayed
-#     #include a button on results page to refresh
-        raise NotImplemented("Hello")
+    #if it is the players turn, let them enter a phrase/guess, same as hotseat
+    #After passing on, redirect to results page, (results page will show nothing until final player goes_
+    #if the final player has entered the gif, results page will be displayed
+    #include a button on results page to refresh
+    raise NotImplemented("Hello")
 
 
 def waiting_room(request, token):
