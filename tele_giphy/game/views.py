@@ -213,9 +213,10 @@ def choose_new_gif(request, token):
     # If there is already a gif, update, otherwise get new gif
     g.gameround_set.update_or_create(
         round_number=g.current_round,
-        user_text=request.POST['phrase'],
         user=request.user,
-        defaults={'giphy_url': gif})
+        defaults={
+            'giphy_url': gif, 
+            'user_text': request.POST['phrase']})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
