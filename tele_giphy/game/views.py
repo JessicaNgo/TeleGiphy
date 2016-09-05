@@ -124,16 +124,15 @@ def start_game(request, token):
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     else:
-        # initiallizes round 1 for all users ###
+        # initiallizes round 1 for all users in a multiplayer game
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
             GameRound.objects.create(
                 round_number=1,
                 user=user.user,
                 game=current_game,
-                origin_user=user.user
-            )
-
+                origin_user=user.user)
+        current_game.total_rounds = len(users)
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
@@ -225,8 +224,9 @@ def pass_on(request, token):
     g = Game.objects.get(token=token)
     g.current_round += 1
     g.save()
-    # if g.current_round > 
-    if g.mode == 'hotseat':
+    if g.current_round > g.total_rounds:
+        return HttpResponseRedirect(reverse('game:gameover_waiting_room', args=(token,)))
+    elif g.mode == 'hotseat':
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     elif g.mode == 'multiplayer':
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
@@ -287,6 +287,9 @@ def multi_gameplay(request, token):
 def waiting_room(request, token):
     pass
 
+
+def gameover_waiting_room(request, token):
+    pass
 
 # ================== GAMEOVER =========================
 

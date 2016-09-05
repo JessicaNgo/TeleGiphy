@@ -13,6 +13,7 @@ class Game(models.Model):
     game_over = models.BooleanField(default='False')
     current_round = models.IntegerField(default=1)
     mode = models.CharField(max_length=20, default=HOTSEAT_MODE)
+    total_rounds = models.IntegerField(default=4)
 
     def __str__(self):
         return self.token
