@@ -127,13 +127,17 @@ def start_game(request, token):
         # initiallizes round 1 for all users in a multiplayer game
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
+            # UserGame.objects.create(
+            #     user=user,
+            #     game=current_game
+            # )
             GameRound.objects.create(
                 round_number=1,
-                user=user.user,
+                user=user,
                 game=current_game,
-                origin_user=user.user)
-        """Commented out for now for testing purposes"""
-        # current_game.total_rounds = len(users)
+                origin_user=user)
+        current_game.total_rounds = len(users)
+        current_game.save()
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
@@ -257,7 +261,7 @@ def multi_gameplay(request, username, token):
 # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
 
-    # Gets origin user for record keeping
+    # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
         game_rounds = game.gameround_set.get(round_number=game.current_round - 1)
         # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
@@ -266,9 +270,11 @@ def multi_gameplay(request, username, token):
     
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
     request_index = ordered_users.index(request.user)
+    if request_index > game.total_rounds:
+        pass
 
     for player_round in game_rounds:
-        origin_user = player_round.
+        # origin_user = player_round.
         game.gameround_set.get_or_create(
             round_number=game.current_round,
             user=request.user,
