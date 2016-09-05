@@ -168,9 +168,9 @@ def hotseat_gameplay(request, token):
     else:
         received_gif = ""
     try:
-        # g.gameround_set.get(round_number=g.current_round)
-        gif = g.gameround_set.get(round_number=g.current_round).giphy_url
-        phrase = g.gameround_set.get(round_number=g.current_round).user_text
+        game_round = g.gameround_set.get(round_number=g.current_round)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
         context = {
             'token': token,
             'game': g,
@@ -207,9 +207,10 @@ def choose_new_gif(request, token):
     # If there is already a gif, update, otherwise get new gif
     g, g_round = g.gameround_set.update_or_create(
         round_number=g.current_round,
-        user_text=request.POST['phrase'],
         user=request.user,
-        defaults={'giphy_url': gif})
+        defaults={
+            'giphy_url': gif, 
+            'user_text': request.POST['phrase']})
 
     return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
