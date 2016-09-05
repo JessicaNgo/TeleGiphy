@@ -215,12 +215,19 @@ def hotseat_gameplay(request, token):
 
 
 def choose_new_gif(request, token):
+    # Default url to redirect to is for Hotseat mode
+    lobby_url = 'game:game_lobby'
+    if request.session['game_mode'] == MULTIPLAYER_MODE:
+        lobby_url = 'game:multi_game_lobby'
+
+    # Use Giphy API to retrieve a gif for the phrase entered by the user    
     response = gif_random(tag=request.POST['phrase'])
     try:
         gif = response.json()['data']['image_url']
+    # If a 'bad' response is retrieved, an error should pop-up otherwise we continue
     except TypeError:
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
-        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+        return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
 
@@ -234,7 +241,7 @@ def choose_new_gif(request, token):
             'giphy_url': gif, 
             'user_text': request.POST['phrase']})
 
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
 
 def pass_on(request, token):
@@ -271,6 +278,7 @@ def multi_gameplay(request, token):
         game_rounds = game.gameround_set.filter(round_number=game.current_round)
     
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
+    print(ordered_users)
     for user_index, user in enumerate(ordered_users):
         if user == request.user:
             request_user_index = user_index
