@@ -42,6 +42,9 @@ class GameRound(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     origin_user = models.ForeignKey(User, related_name='origin_user', null=True)
 
+    def __str__(self):
+        return "Round: " + str(self.round_number) + ". Username: " + self.user.username + ". Game token:" + str(self.game.token)
+
 
 # # Keeps track of records after gameover
 class GameOverRecords(models.Model):
