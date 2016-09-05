@@ -269,7 +269,8 @@ def multi_gameplay(request, token):
         # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
     else:
         game_rounds = game.gameround_set.filter(round_number=game.current_round)
-    
+
+    # Determine the "placement" of current user and the user before
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
     for user_index, user in enumerate(ordered_users):
         if user == request.user:
@@ -277,14 +278,27 @@ def multi_gameplay(request, token):
             try:
                 previous_user_index = ordered_users[request_user_index-1]
             except AssertionError:
-                # Multiplayer with 1 user
-                previous_user_index = user_index
-            
+                # First player with index of 0
+                previous_user_index = ordered_users[len(ordered_users)-1]
+            break
 
-    # request_index = ordered_users.index(request.user) #Index doesn't work, needs iteration, refactor later
     print ('This is the request index: {}'.format(request_user_index))
-    if request_user_index > game.total_rounds:
+    if request_user_index > (game.total_rounds + game.current_round):
         pass
+    else:
+        pass
+
+    """
+    Determine index of current user in ordered_users
+
+    if current player index > total_rounds + current_round_#:
+        Get gif for index[0] origin_player
+    else:
+        look at last round
+        find move player at current player index[i-1] did
+        Get gif for index[i+1]
+    """
+
 
     # for player_round in game_rounds:
     #     # origin_user = player_round.
@@ -295,61 +309,8 @@ def multi_gameplay(request, token):
     #     )
 
     context = gameplay_context(game, token)
-    
-    """
-    Determine index of current user in ordered_users
-    
-    if current player index > total_rounds + current_round_#:
-        Get gif for index[0] origin_player
-    else:
-        look at last round
-        find move player at current player index[i-1] did
-        Get gif for index[i+1]
-    """
+
     return render(request, 'game/multi_gameplay.html', context)
-
-    # temp_user_list = [user.username for user in users if user.username]
-    # request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
-    # request.session['player_round'] = 1  # increment each time local player passes on gif
-
-    # context = {
-    #     'token': token,
-    #     'game':game
-    # }
-    
-    # max_rounds = game.
-    
-    # if game.current_round == 1:
-    #     game_round = game.gameround_set.filter(origin_user=request.user)
-    # elif game.current_round <= max_rounds:
-    #     current_player_round = session['player_round']
-    #     # next_user_origin = request.session['other_user_origins'][current_player_round].
-    #     # previous_game_round = game.gameround_set.filter(origin_user=next_user_origin, round_number = session[])
-    # #TODO:     
-    # #having trouble determining player order
-    # gif = game_round.giphy_url
-    # phrase = game_round.user_text
-    
-    # try:
-    #     context['gif'] = gif
-    #     context['phrase'] = phrase
-    # except:
-    #     pass
-    # context = {
-    #         'token': token,
-    #         'game': g,
-    #         'gif': gif,
-    #         'phrase': phrase,
-    #         'received_gif': received_gif
-    #     }
-    #display recieved gif #display phrase #display gif
-    
-    # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
-    #if it is the players turn, let them enter a phrase/guess, same as hotseat
-    #After passing on, redirect to results page, (results page will show nothing until final player goes_
-    #if the final player has entered the gif, results page will be displayed
-    #include a button on results page to refresh
-    # raise NotImplemented("Hello")
 
 
 def waiting_room(request, token):
