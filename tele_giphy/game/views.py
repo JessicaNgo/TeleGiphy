@@ -218,6 +218,8 @@ def choose_new_gif(request, token):
 
     g = Game.objects.get(token=token)
 
+    """Need to account for origin user for multi"""
+
     # If there is already a gif, update, otherwise get new gif
     g.gameround_set.update_or_create(
         round_number=g.current_round,
@@ -247,17 +249,38 @@ def _is_player_turn(request, user):
     pass
 
 
-def multi_gameplay(request, token):
+def multi_gameplay(request, username, token):
 # Each request recognizes which player is making the request due to session cookies
     # You can test this by having private browser windows and logging in as other players
 # This should mimic 1 round of hotseat and store info as the request user in the model
-# After a player passes/commits to gif, it goes to waiting
+# After a player passes/commits to gif, they go to waiting
 # Waiting redirects to game_lobby when all players have gone 
-
     game = Game.objects.get(token=token)
-    context = gameplay_context(g, token)
+    
+    # Gets origin user for record keeping
+    if game.current_round > 1:
+        origin_user = game.gameround_set.get(round_number=game.current_round - 1).origin_user
+    else:
+        origin_user = request.user
+    
+    game.gameround_set.get_or_create(
+        round_number=game.current_round,
+        user=request.user,
+        origin_user=origin_user
+    )
 
-    # users = User.objects.filter(usergame__game__token=token)
+    context = gameplay_context(g, token)
+    ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
+    """
+    # Determine index of user in ordered_users
+    # if current player index == total_rounds:
+    #   Get gif for index[0] origin_player
+    # else:
+    #   look at last round origin_player index
+    #   Get gif for index[i+1]
+    """
+
+
     # temp_user_list = [user.username for user in users if user.username]
     # request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
     # request.session['player_round'] = 1  # increment each time local player passes on gif
