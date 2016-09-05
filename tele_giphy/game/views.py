@@ -271,20 +271,30 @@ def multi_gameplay(request, token):
         game_rounds = game.gameround_set.filter(round_number=game.current_round)
     
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
-    request_index = ordered_users.index(request.user) #Index doesn't work, needs iteration, refactor later
-    print ('This is the request index: {}'.format(request_index))
-    if request_index > game.total_rounds:
+    for user_index, user in enumerate(ordered_users):
+        if user == request.user:
+            request_user_index = user_index
+            try:
+                previous_user_index = ordered_users[request_user_index-1]
+            except AssertionError:
+                # Multiplayer with 1 user
+                previous_user_index = user_index
+            
+
+    # request_index = ordered_users.index(request.user) #Index doesn't work, needs iteration, refactor later
+    print ('This is the request index: {}'.format(request_user_index))
+    if request_user_index > game.total_rounds:
         pass
 
-    for player_round in game_rounds:
-        # origin_user = player_round.
-        game.gameround_set.get_or_create(
-            round_number=game.current_round,
-            user=request.user,
-            origin_user=origin_user
-        )
+    # for player_round in game_rounds:
+    #     # origin_user = player_round.
+    #     game.gameround_set.get_or_create(
+    #         round_number=game.current_round,
+    #         user=request.user,
+    #         origin_user=origin_user
+    #     )
 
-    context = gameplay_context(g, token)
+    context = gameplay_context(game, token)
     
     """
     Determine index of current user in ordered_users
@@ -296,7 +306,7 @@ def multi_gameplay(request, token):
         find move player at current player index[i-1] did
         Get gif for index[i+1]
     """
-
+    return render(request, 'game/multi_gameplay.html', context)
 
     # temp_user_list = [user.username for user in users if user.username]
     # request.session['other_user_origins'] = dict(enumerate(temp_user_list, start=2))
@@ -339,7 +349,7 @@ def multi_gameplay(request, token):
     #After passing on, redirect to results page, (results page will show nothing until final player goes_
     #if the final player has entered the gif, results page will be displayed
     #include a button on results page to refresh
-    raise NotImplemented("Hello")
+    # raise NotImplemented("Hello")
 
 
 def waiting_room(request, token):
