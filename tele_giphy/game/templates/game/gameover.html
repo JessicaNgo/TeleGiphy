@@ -25,7 +25,7 @@
                   <br>          
                   <p>
                     <h3>Round {{ forloop.counter }}</h3>
-                    <h4>player {{ forloop.counter }}</h2>
+                    <h3>player {{ forloop.counter }}</h3>
                     <h4>Text Entered:</b> {{ round.user_text }}</h4><br>
                     <a href="{{ round.giphy_url }}"><img src="{{ round.giphy_url }}"></a>
                   </p>
@@ -34,7 +34,7 @@
           {# Multiplayer play, shows usernames #}
           {% elif game_mode == "multiplayer" %}
             {% for player, actions in result.items %}
-              <h2>PLAYER: {{ player }}</h2>
+              <h2>PLAYER: <b>{{ player }}</b></h2>
               <br>
               {% for round in actions.rounds %}          
                 <p>

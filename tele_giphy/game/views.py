@@ -6,32 +6,63 @@ from uuid import uuid4
 # Django
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, logout as django_logout
+from django.contrib.auth import logout as django_logout
 from django.db import IntegrityError
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.contrib.auth.models import User
 
 # Localfolder
 from .giphy import gif_random
+# from .auxiliary import _give_random_name, _attach_user_to_game, _delete_game, _login_user
 from .models import (
-    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame,
+    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
 )
 
-User = get_user_model()
+# ================== Aux items =========================
 
+def _give_random_name(request):
+    user = User.objects.create(username=str(uuid4()))
+    _login_user(request, user)
+    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
+
+def _attach_user_to_game(game, request):
+    try:
+        UserGame.objects.get(user=request.user)
+        url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
+        messages.error(request,
+            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+                token=request.user.usergame.game, url=url))
+        raise IntegrityError
+    except UserGame.DoesNotExist:
+        UserGame.objects.create(user=request.user, game=game)
+
+def _delete_game(game):
+    g = Game.objects.get(game=game)
+    g.delete()
+
+def _login_user(request, user):
+    """
+    Log in a user without requiring credentials (using ``login`` from
+    ``django.contrib.auth``, first finding a matching backend).
+
+    """
+    from django.contrib.auth import load_backend, login
+    if not hasattr(user, 'backend'):
+        for backend in settings.AUTHENTICATION_BACKENDS:
+            if user == load_backend(backend).get_user(user.pk):
+                user.backend = backend
+                break
+    if hasattr(user, 'backend'):
+        return login(request, user)
 
 def index(request):
     """
     This is the index view. That is all.
     """
     return render(request, 'game/index.html')
-
-
-def _give_random_name(request):
-    user = User.objects.create(username=str(uuid4()))
-    _login_user(request, user)
-    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
 
 
 def new_game(request):
@@ -61,23 +92,6 @@ def new_game(request):
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
-def _attach_user_to_game(game, request):
-    try:
-        UserGame.objects.get(user=request.user)
-        url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
-        messages.error(request,
-            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
-                token=request.user.usergame.game, url=url))
-        raise IntegrityError
-    except UserGame.DoesNotExist:
-        UserGame.objects.create(user=request.user, game=game)
-
-
-def _delete_game(game):
-    g = Game.objects.get(game=game)
-    g.delete()
-
-
 def join_game(request):
     """
     This view allows a different users to join a pre-exisiting game if it exists.
@@ -105,10 +119,8 @@ def join_game(request):
     return redirect(reverse('game:index'))
 
 
+# This is where players come to wait until the game can start
 def pre_game_room(request, token):
-    """
-    This is where players come to wait until the game can start
-    """
     users = User.objects.filter(usergame__game__token=token)
     return render(request, 'game/pre_game_room.html', {
         "token": token, "users": users})
@@ -118,30 +130,26 @@ def start_game(request, token):
     """
     The game is initiated through this view, not actually displayed though
     """
+    # current_game can use refactoring to be queryset for easier updating and cleaner code
     current_game = Game.objects.get(token=token)
     current_game.game_active = True
     current_game.save()
 
     if request.session['game_mode'] == HOTSEAT_MODE:
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
-    else:
+    elif request.session['game_mode'] == MULTIPLAYER_MODE:
+        # initiallizes round 1 for all users in a multiplayer game
+        users = User.objects.filter(usergame__game__token=token)
+        for user in users:
+            GameRound.objects.update_or_create(
+                round_number=1,
+                user=user,
+                game=current_game,
+                origin_user=user)
+        current_game.total_rounds = len(users)
+        current_game.mode = MULTIPLAYER_MODE
+        current_game.save()
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
-
-
-def _login_user(request, user):
-    """
-    Log in a user without requiring credentials (using ``login`` from
-    ``django.contrib.auth``, first finding a matching backend).
-
-    """
-    from django.contrib.auth import load_backend, login
-    if not hasattr(user, 'backend'):
-        for backend in settings.AUTHENTICATION_BACKENDS:
-            if user == load_backend(backend).get_user(user.pk):
-                user.backend = backend
-                break
-    if hasattr(user, 'backend'):
-        return login(request, user)
 
 
 def choose_name(request):
@@ -160,91 +168,185 @@ def choose_name(request):
     return redirect(request.GET.get('next', '/'))
 
 
-# ================== HOTSEAT GAMEPLAY =========================
-def hotseat_gameplay(request, token):
-    # if roundnumber of game is 1 (first turn)
-    g = Game.objects.get(token=token)
-    if g.current_round > 1:
-        received_gif = g.gameround_set.get(round_number=g.current_round - 1).giphy_url
+# Gets context of previous and current player actions for Hotseat Gameplay
+def gameplay_context(game, token):
+    if game.current_round > 1:
+        # gif from last player
+        received_gif = game.gameround_set.get(round_number=game.current_round - 1).giphy_url
     else:
+        # if roundnumber of game is 1 (first turn)
         received_gif = ""
     try:
-        game_round = g.gameround_set.get(round_number=g.current_round)
+        game_round = game.gameround_set.get(round_number=game.current_round)
         gif = game_round.giphy_url
         phrase = game_round.user_text
-        context = {
-            'token': token,
-            'game': g,
-            'gif': gif,
-            'phrase': phrase,
-            'received_gif': received_gif
-        }
+    # no phrase has been entered by the player yet
     except:
-        gif = "http://media0.giphy.com/media/YJBNjrvG5Ctmo/giphy.gif"
-        context = {
-            'token': token,
-            'game': g,
-            'gif': gif,
-            'received_gif': received_gif
-        }
+        gif = static('img/giphy_static.gif')
+        phrase = ""
+
+    context = {
+        'token': token,
+        'game': game,
+        'gif': gif,
+        'phrase': phrase,
+        'received_gif': received_gif
+    }
+    return context
+
+
+# ================== HOTSEAT GAMEPLAY =========================
+
+def hotseat_gameplay(request, token):
+    g = Game.objects.get(token=token)
+    context = gameplay_context(g, token)
     return render(request, 'game/hotseat_gameplay.html', context)
 
 
-# Not sure what this is for..? \/\/\/
-# def select_phrase(request, token):
-#     phrase = request.POST['phrase']
-
-
 def choose_new_gif(request, token):
+    g = Game.objects.get(token=token)
+
+    # Default url to redirect to is for Hotseat mode
+    lobby_url = 'game:game_lobby'
+    origin_user = request.user
+    if g.mode == MULTIPLAYER_MODE:
+        lobby_url = 'game:multi_game_lobby'
+        origin_user = User.objects.get(username=request.POST['origin_user'])
+
+    # Use Giphy API to retrieve a gif for the phrase entered by the user
     response = gif_random(tag=request.POST['phrase'])
     try:
         gif = response.json()['data']['image_url']
+    # If a 'bad' response is retrieved, an error should pop-up otherwise we continue
     except TypeError:
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
-        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
-
-    g = Game.objects.get(token=token)
+        return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     # If there is already a gif, update, otherwise get new gif
-    g, g_round = g.gameround_set.update_or_create(
+    update_set, game_updated = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user=request.user,
+        origin_user=origin_user,
         defaults={
-            'giphy_url': gif, 
+            'giphy_url': gif,
             'user_text': request.POST['phrase']})
 
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
 
 def pass_on(request, token):
     g = Game.objects.get(token=token)
-    # print(g.current_round)
-    g.current_round += 1
-    # print(g.current_round)
-    g.save()
 
-    return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+    # Hotseat mode
+    if g.mode == 'hotseat':
+        g.current_round += 1
+        g.save()
+        return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
 
+    # Multiplayer mode
+    if g.mode == 'multiplayer':
+        game_round = g.gameround_set.get(
+            user=request.user, round_number=g.current_round)
+        game_round.committed = True
+        game_round.save()
+        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
-# def _login_user(request, user):
-
-#     Log in a user without requiring credentials (using ``login`` from
-#     ``django.contrib.auth``, first finding a matching backend).
-# =======
 
 # ================== MULTIPLAYER GAMEPLAY =========================
 
+
 def multi_gameplay(request, token):
-    # first lets only work on one game at a time
-    # TO DO:
-    # check if it is the players turn, if not, show a waiting for turn page, or anythingn really
-    # if it is the players turn, let them enter a phrase/guess, same as hotseat
-    # After passing on, redirect to results page, (results page will show nothing until final player goes_
-    # if the final player has entered the gif, results page will be displayed
-    # include a button on results page to refresh
+    game = Game.objects.get(token=token)
 
-    raise NotImplementedError("Hello")
+    if game.current_round > 1:
+        previous_round = game.current_round - 1
+        # Determine the "placement" of current user and the user "before"
+        ordered_users = User.objects.filter(
+            usergame__game__token=token).order_by('username')
 
+        for user_index, user in enumerate(ordered_users):
+            if user == request.user:
+                try:
+                    previous_user_index = user_index - 1
+                    previous_user = ordered_users[previous_user_index]
+                except AssertionError:
+                    # First player with index of 0
+                    previous_user_index = len(ordered_users) - 1
+                    previous_user = ordered_users[previous_user_index]
+                break
+
+        # Find game round requesting user is suppose to act on
+        previous_game_round = game.gameround_set.get(
+            user=previous_user, round_number=previous_round)
+
+        received_gif = previous_game_round.giphy_url
+        origin_user = previous_game_round.origin_user
+
+    else:
+        previous_round = game.current_round
+        received_gif = ""
+        origin_user = request.user
+
+    try:
+        game_round = game.gameround_set.get(
+            round_number=game.current_round,
+            user=request.user)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
+    # no phrase has been entered by the player yet
+    except:
+        gif = static('img/giphy_static.gif')
+        phrase = ""
+        game.gameround_set.get_or_create(
+            round_number=game.current_round,
+            user=request.user,
+            origin_user=origin_user
+        )
+
+    context = {
+        'token': token,
+        'game': game,
+        'gif': gif,
+        'phrase': phrase,
+        'received_gif': received_gif,
+        'origin_user': origin_user
+    }
+    return render(request, 'game/multi_gameplay.html', context)
+
+
+def waiting_room(request, token):
+    doge = {'doge': gif_random('doge').json()['data']['image_url']}
+    # See if game has finished
+    try:
+        game = Game.objects.get(token=token)
+    except Game.DoesNotExist:
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
+
+    # See if user has done their action for the round yet
+    try:
+        current_user_round = game.gameround_set.get(
+            round_number=game.current_round, user=request.user)
+        if not current_user_round.committed:
+            return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
+    except GameRound.DoesNotExist:
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
+
+    # logic to check to see if all players are ready
+    game_rounds = game.gameround_set.filter(round_number=game.current_round)
+    for player in game_rounds:
+        if not player.committed:
+            return render(request, 'game/multi_waiting_room.html', doge)
+
+    # Progress the round, if end of game, go to game over
+    game.current_round += 1
+    game.save()
+    if game.current_round > game.total_rounds:
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
+    else:
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
+
+
+# ================== GAMEOVER =========================
 
 def gameover(request, token):
     # Checks what kind of token is passed and fetch object
@@ -281,18 +383,18 @@ def gameover(request, token):
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
 
         # Users from game (for now), UserGame model not yet populating
-        all_origin_users = set([gRound.origin_user for gRound in game_rounds])
+        all_origin_users = set([gRound.origin_user.username for gRound in game_rounds])
         result = {name: {'rounds': []} for name in all_origin_users}
 
         # Populate dict for gameover display and record storage
-        for gTurn in game_rounds:
-            if gTurn.user_text == '':
+        for turn in game_rounds:
+            if turn.user_text == '':
                 user_text = '[BLANK]'
             else:
-                user_text = gTurn.user_text
-            result[gTurn.origin_user]['rounds'].append(
+                user_text = turn.user_text
+            result[turn.origin_user.username]['rounds'].append(
                 {'user_text': user_text,
-                 'giphy_url': gTurn.giphy_url})
+                 'giphy_url': turn.giphy_url})
 
         # Stores a json of all players actions in post-gameover model
         postGameToken = str(uuid4())
@@ -328,11 +430,3 @@ def gameover(request, token):
         "result": result,
         "token": postGameToken,
         "game_mode": game_mode})
-
-
-def multi_choose_new_gif(request, token):
-    raise NotImplementedError("Hello")
-
-
-def multi_pass_on(request, token):
-    raise NotImplementedError("Hello")

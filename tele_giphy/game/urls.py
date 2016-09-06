@@ -16,8 +16,7 @@ urlpatterns = [
     url(r'^game_lobby/(?P<token>[0-9]+)/choose_new_gif$', views.choose_new_gif, name='choose_new_gif'),
     url(r'^game_lobby/(?P<token>[0-9]+)/next$', views.pass_on, name='pass_on'),
     url(r'^gameover/(?P<token>[\w\-]+)/$', views.gameover, name='gameover'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/$', views.multi_gameplay, name='multi_game_lobby'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/choose_new_gif$', views.multi_choose_new_gif, name='multi_choose_new_gif'),
-    url(r'^game_lobby/(?P<token>[0-9]+)/next$', views.multi_pass_on, name='multi_pass_on'),
+    url(r'^multi_game_lobby/(?P<token>[0-9]+)/$', views.multi_gameplay, name='multi_game_lobby'),
+    url(r'^waiting_room/(?P<token>[0-9]+)/$', views.waiting_room, name='waiting_room'),
     url(r'^choose_name', views.choose_name, name='choose_name')
 ]
