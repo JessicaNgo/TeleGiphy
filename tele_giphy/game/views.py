@@ -328,11 +328,22 @@ def multi_gameplay(request, token):
 
 
 def waiting_room(request, token):
-    # logic to check to see if all players are ready
+    # See if game has finished
     try:
         game = Game.objects.get(token=token)
     except Game.DoesNotExist:
         return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
+
+    # See if user has done their action for the round yet
+    try:
+        current_user_round = game.gameround_set.get(
+            round_number=game.current_round, user=request.user)
+        if not current_user_round.committed:
+            return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
+    except GameRound.DoesNotExist:
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
+
+    # logic to check to see if all players are ready
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
     for player in game_rounds:
         if not player.committed:
