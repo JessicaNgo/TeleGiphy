@@ -279,6 +279,7 @@ def multi_gameplay(request, token):
 
 
 def waiting_room(request, token):
+    
     # See if game has finished
     try:
         game = Game.objects.get(token=token)
@@ -298,7 +299,7 @@ def waiting_room(request, token):
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
     for player in game_rounds:
         if not player.committed:
-            return render(request, 'game/multi_waiting_room.html')
+            return render(request, 'game/multi_waiting_room.html', doge)
 
     # Progress the round, if end of game, go to game over
     game.current_round += 1
