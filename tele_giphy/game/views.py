@@ -216,6 +216,7 @@ def choose_new_gif(request, token):
     if request.session['game_mode'] == MULTIPLAYER_MODE:
         lobby_url = 'game:multi_game_lobby'
 
+    print (lobby_url)
     # Use Giphy API to retrieve a gif for the phrase entered by the user    
     response = gif_random(tag=request.POST['phrase'])
     try:
@@ -226,28 +227,18 @@ def choose_new_gif(request, token):
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
-    origin_user = request.POST.get('origin_user')
-    print(origin_user)
+    origin_user= request.POST.get('origin_user') 
 
     # If there is already a gif, update, otherwise get new gif
-    if g.current_round == 1:
-        g.gameround_set.update_or_create(
-            round_number=g.current_round,
-            user=request.user,
-            defaults={
-                'giphy_url': gif, 
-                'user_text': request.POST['phrase']})
-    else:
-        # Get origin user
-        # origin_user = g.gameround_set.get(round_number=g.current_round-1).origin_user
-        g.gameround_set.update_or_create(
-            round_number=g.current_round,
-            user=request.user,
-            defaults={
-                'giphy_url': gif, 
-                'user_text': request.POST['phrase']},
-            origin_user=origin_user
-        )
+
+    g.gameround_set.update_or_create(
+        round_number=g.current_round,
+        user=request.user,
+        origin_user=origin_user,
+        defaults={
+            'giphy_url': gif,
+            'user_text': request.POST['phrase']
+        })
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
@@ -313,15 +304,22 @@ def multi_gameplay(request, token):
         # if roundnumber of game is 1 (first turn)
         received_gif = ""
         origin_user = request.user
+    
     try:
         game_round = game.gameround_set.get(
-            round_number=game.current_round, user=request.user)
+            round_number=game.current_round, 
+            user=request.user)
         gif = game_round.giphy_url
         phrase = game_round.user_text
     # no phrase has been entered by the player yet
     except:
         gif = static('img/giphy_static.gif')
         phrase = ""
+        game.gameround_set.get_or_create(
+            round_number=game.current_round,
+            user=request.user,
+            origin_user=origin_user
+            )
 
     context = {
         'token': token,
