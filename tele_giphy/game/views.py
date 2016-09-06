@@ -6,9 +6,9 @@ from uuid import uuid4
 # Django
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, logout as django_logout
+from django.contrib.auth import logout as django_logout
 from django.db import IntegrityError
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -19,8 +19,6 @@ from .giphy import gif_random
 from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
 )
-
-# User = get_user_model()
 
 
 def index(request):
@@ -128,10 +126,6 @@ def start_game(request, token):
         # initiallizes round 1 for all users in a multiplayer game
         users = User.objects.filter(usergame__game__token=token)
         for user in users:
-            # UserGame.objects.create(
-            #     user=user,
-            #     game=current_game
-            # )
             GameRound.objects.update_or_create(
                 round_number=1,
                 user=user,
