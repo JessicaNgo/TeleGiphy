@@ -230,7 +230,7 @@ def choose_new_gif(request, token):
     origin_user= request.POST.get('origin_user')
     phrase = request.POST['phrase']
 
-    print(origin_user, phrase) 
+    print(type(origin_user), type(phrase)) 
 
     # If there is already a gif, update, otherwise get new gif
 
