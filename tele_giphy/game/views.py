@@ -227,7 +227,10 @@ def choose_new_gif(request, token):
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
-    origin_user= request.POST.get('origin_user') 
+    origin_user= request.POST.get('origin_user')
+    phrase = request.POST['phrase']
+
+    print(origin_user, phrase) 
 
     # If there is already a gif, update, otherwise get new gif
 
@@ -237,7 +240,7 @@ def choose_new_gif(request, token):
         origin_user=origin_user,
         defaults={
             'giphy_url': gif,
-            'user_text': request.POST['phrase']
+            'user_text': phrase
         })
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
