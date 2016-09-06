@@ -265,22 +265,28 @@ def multi_gameplay(request, token):
 
     # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
-        game_rounds = game.gameround_set.filter(round_number=game.current_round - 1)
+        previous_round = game.current_round - 1
         # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
     else:
-        game_rounds = game.gameround_set.filter(round_number=game.current_round)
+        previous_round = game.current_round
+    game_rounds = game.gameround_set.filter(round_number=previous_round)
 
-    # Determine the "placement" of current user and the user before
+    # Determine the "placement" of current user and the user "before"
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
     for user_index, user in enumerate(ordered_users):
         if user == request.user:
             request_user_index = user_index
             try:
-                previous_user_index = ordered_users[request_user_index-1]
+                previous_user_index = user_index - 1
+                previous_user = ordered_users[previous_user_index]
             except AssertionError:
                 # First player with index of 0
-                previous_user_index = ordered_users[len(ordered_users)-1]
+                previous_user_index = len(ordered_users) - 1
+                previous_user = ordered_users[previous_user_index]
             break
+
+    # Figure out game round requesting user is suppose to act on
+    previous_context = game_rounds.objects.get(user=previous_user, round_number=previous_round)
 
     print ('This is the request index: {}'.format(request_user_index))
     if request_user_index > (game.total_rounds + game.current_round):
