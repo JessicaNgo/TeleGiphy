@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.contrib.auth.models import User
 
 # Localfolder
 from .giphy import gif_random
@@ -227,18 +228,23 @@ def choose_new_gif(request, token):
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
-    origin_user= request.POST.get('origin_user') 
+    # origin_user= request.POST.get('origin_user') 
+    #print(type(request.POST['origin_user']))
+    print(request.POST['origin_user'] == None)
+    print(request.POST['origin_user'])
+    print(request.POST)
+    #origin_user=1
+    #origin_user= User.objects.get(username=request.POST['origin_user'])
 
     # If there is already a gif, update, otherwise get new gif
 
     g.gameround_set.update_or_create(
         round_number=g.current_round,
         user=request.user,
-        origin_user=origin_user,
+        origin_user=User.objects.get(username=request.POST['origin_user']),
         defaults={
             'giphy_url': gif,
-            'user_text': request.POST['phrase']
-        })
+            'user_text': request.POST['phrase']})
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
