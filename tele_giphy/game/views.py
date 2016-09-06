@@ -342,10 +342,14 @@ def multi_gameplay(request, token):
 def waiting_room(request, token):
     # logic to check to see if all players are ready
     game = Game.objects.get(token=token)
-    game_rounds = game.gameround_set.filter(round_number=game.current_round)
+    game_rounds = game.gameround_set.filter(round_number=game.current_round-2)
+    print(game.current_round)
+    print(game_rounds.count())
+    print(game.total_rounds)
 
-    if game_rounds.count == game.total_rounds:
-        return HttpResponseRedirect(reverse('game:multi_gameplay'))
+    if game_rounds.count() == game.total_rounds:
+        print("init")
+        return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
     return render(request, 'game/multi_waiting_room.html')
 
 
