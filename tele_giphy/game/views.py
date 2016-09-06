@@ -132,7 +132,7 @@ def start_game(request, token):
             #     user=user,
             #     game=current_game
             # )
-            GameRound.objects.create(
+            GameRound.objects.update_or_create(
                 round_number=1,
                 user=user,
                 game=current_game,
@@ -234,12 +234,24 @@ def choose_new_gif(request, token):
     """Need to account for origin user for multi"""
 
     # If there is already a gif, update, otherwise get new gif
-    g.gameround_set.update_or_create(
-        round_number=g.current_round,
-        user=request.user,
-        defaults={
-            'giphy_url': gif, 
-            'user_text': request.POST['phrase']})
+    if g.current_round == 1:
+        g.gameround_set.update_or_create(
+            round_number=g.current_round,
+            user=request.user,
+            defaults={
+                'giphy_url': gif, 
+                'user_text': request.POST['phrase']})
+    else:
+        # Get origin user
+        origin_user = g.gameround_set.get(round_number=g.current_round-1).origin_user
+        g.gameround_set.update_or_create(
+            round_number=g.current_round,
+            user=request.user,
+            defaults={
+                'giphy_url': gif, 
+                'user_text': request.POST['phrase']},
+            origin_user=origin_user
+        )
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
@@ -278,7 +290,7 @@ def multi_gameplay(request, token):
         game_rounds = game.gameround_set.filter(round_number=game.current_round)
     
     ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
-    print(ordered_users)
+
     for user_index, user in enumerate(ordered_users):
         if user == request.user:
             request_user_index = user_index
