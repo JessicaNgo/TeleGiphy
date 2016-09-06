@@ -3,10 +3,10 @@
 {% block main_content %}
 <div class = "row">
   <div class = "col-md-4">
-      <h4>Round # {{game.current_round}}</h4>
+      <h4>Round # {{ game.current_round }}</h4>
   </div>
   <div class = "col-md-4 col-md-offset-4 text-right">
-      <h4>Player # {{game.current_round}}</h4>
+      <h4>From Player: <b>{{ origin_user }}</b></h4>
   </div>    
 </div>
 {% if game.current_round != 1 %}

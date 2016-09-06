@@ -211,12 +211,15 @@ def hotseat_gameplay(request, token):
 
 
 def choose_new_gif(request, token):
+    g = Game.objects.get(token=token)
+
     # Default url to redirect to is for Hotseat mode
     lobby_url = 'game:game_lobby'
-    if request.session['game_mode'] == MULTIPLAYER_MODE:
+    origin_user = request.user
+    if g.mode == MULTIPLAYER_MODE:
         lobby_url = 'game:multi_game_lobby'
+        origin_user = User.objects.get(username=request.POST['origin_user'])
 
-    print (lobby_url)
     # Use Giphy API to retrieve a gif for the phrase entered by the user
     response = gif_random(tag=request.POST['phrase'])
     try:
@@ -226,16 +229,15 @@ def choose_new_gif(request, token):
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
-    g = Game.objects.get(token=token)
-
     # If there is already a gif, update, otherwise get new gif
     update_set, game_updated = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user=request.user,
-        origin_user=User.objects.get(username=request.POST['origin_user']),
+        origin_user=origin_user,
         defaults={
             'giphy_url': gif,
             'user_text': request.POST['phrase']})
+    print(g.current_round)
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
@@ -243,11 +245,13 @@ def choose_new_gif(request, token):
 def pass_on(request, token):
     g = Game.objects.get(token=token)
     if g.mode == 'hotseat':
+        print('in hotseat')
         g.current_round += 1
         g.save()
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     if g.mode == 'multiplayer':
-        if g.current_round == g.total_rounds:
+        print('at pass_on')
+        if g.current_round > g.total_rounds:
             return HttpResponseRedirect(reverse('game:gameover', args=(token,)))  # gameover
         else:
             return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
@@ -264,40 +268,34 @@ def multi_gameplay(request, token):
     # After a player passes/commits to gif, they go to waiting
     # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
+    print("current round", game.current_round)
 
-    # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
         previous_round = game.current_round - 1
-    else:
-        previous_round = game.current_round
-    game_rounds = game.gameround_set.filter(round_number=previous_round)
+        # Determine the "placement" of current user and the user "before"
+        ordered_users = User.objects.filter(
+            usergame__game__token=token).order_by('username')
 
-    # Determine the "placement" of current user and the user "before"
-    ordered_users = User.objects.filter(
-        usergame__game__token=token).order_by('username')
+        for user_index, user in enumerate(ordered_users):
+            if user == request.user:
+                try:
+                    previous_user_index = user_index - 1
+                    previous_user = ordered_users[previous_user_index]
+                except AssertionError:
+                    # First player with index of 0
+                    previous_user_index = len(ordered_users) - 1
+                    previous_user = ordered_users[previous_user_index]
+                break
 
-    for user_index, user in enumerate(ordered_users):
-        if user == request.user:
-            try:
-                previous_user_index = user_index - 1
-                previous_user = ordered_users[previous_user_index]
-            except AssertionError:
-                # First player with index of 0
-                previous_user_index = len(ordered_users) - 1
-                previous_user = ordered_users[previous_user_index]
-            break
+        # Find game round requesting user is suppose to act on
+        previous_game_round = game.gameround_set.get(
+            user=previous_user, round_number=previous_round)
 
-    # Find game round requesting user is suppose to act on
-    previous_game_round = game_rounds.get(
-        user=previous_user, round_number=previous_round)
-
-    # Build context
-    if game.current_round > 1:
-        # gif and origin_user from last player
         received_gif = previous_game_round.giphy_url
         origin_user = previous_game_round.origin_user
+
     else:
-        # if roundnumber of game is 1 (first turn)
+        previous_round = game.current_round
         received_gif = ""
         origin_user = request.user
 
@@ -325,7 +323,6 @@ def multi_gameplay(request, token):
         'received_gif': received_gif,
         'origin_user': origin_user
     }
-
     return render(request, 'game/multi_gameplay.html', context)
 
 
@@ -333,9 +330,8 @@ def waiting_room(request, token):
     # logic to check to see if all players are ready
     game = Game.objects.get(token=token)
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
-    print(game.current_round)
-    print(game_rounds.count())
-    print(game.total_rounds)
+    # for player in game_rounds:
+        # if player.get()
 
     if game_rounds.count() == game.total_rounds:
         print("init")
