@@ -175,7 +175,7 @@ def choose_name(request):
     return redirect(request.GET.get('next', '/'))
 
 
-# Gets context of previous and current player actions
+# Gets context of previous and current player actions for Hotseat Gameplay
 def gameplay_context(game, token):
     if game.current_round > 1:
         # gif from last player
@@ -187,22 +187,18 @@ def gameplay_context(game, token):
         game_round = game.gameround_set.get(round_number=game.current_round)
         gif = game_round.giphy_url
         phrase = game_round.user_text
-        context = {
-            'token': token,
-            'game': game,
-            'gif': gif,
-            'phrase': phrase,
-            'received_gif': received_gif
-        }
     # no phrase has been entered by the player yet
     except:
         gif = static('img/giphy_static.gif')
-        context = {
-            'token': token,
-            'game': game,
-            'gif': gif,
-            'received_gif': received_gif
-        }
+        phrase = ""
+
+    context = {
+        'token': token,
+        'game': game,
+        'gif': gif,
+        'phrase': phrase,
+        'received_gif': received_gif
+    }
     return context
 
 
@@ -272,8 +268,7 @@ def multi_gameplay(request, token):
 
     # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
-        previous_round = game.current_round - 1
-        # origin_user = game_rounds.origin_user """Can't do this since there'll be n objects""" 
+        previous_round = game.current_round - 1 
     else:
         previous_round = game.current_round
     game_rounds = game.gameround_set.filter(round_number=previous_round)
@@ -293,36 +288,37 @@ def multi_gameplay(request, token):
                 previous_user = ordered_users[previous_user_index]
             break
 
-    # Figure out game round requesting user is suppose to act on
-    previous_context = game_rounds.objects.get(user=previous_user, round_number=previous_round)
+    # Find game round requesting user is suppose to act on
+    previous_game_round = game_rounds.objects.get(
+        user=previous_user, round_number=previous_round)
 
-    print ('This is the request index: {}'.format(request_user_index))
-    if request_user_index > (game.total_rounds + game.current_round):
-        pass
+    # Build context
+    if game.current_round > 1:
+        # gif and origin_user from last player
+        received_gif = previous_round.giphy_url
+        origin_user = previous_game_round.origin_user
     else:
-        pass
+        # if roundnumber of game is 1 (first turn)
+        received_gif = ""
+        origin_user = request.user
+    try:
+        game_round = game.gameround_set.get(
+            round_number=game.current_round, user=request.user)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
+    # no phrase has been entered by the player yet
+    except:
+        gif = static('img/giphy_static.gif')
+        phrase = ""
 
-    """
-    Determine index of current user in ordered_users
-
-    if current player index > total_rounds + current_round_#:
-        Get gif for index[0] origin_player
-    else:
-        look at last round
-        find move player at current player index[i-1] did
-        Get gif for index[i+1]
-    """
-
-
-    # for player_round in game_rounds:
-    #     # origin_user = player_round.
-    #     game.gameround_set.get_or_create(
-    #         round_number=game.current_round,
-    #         user=request.user,
-    #         origin_user=origin_user
-    #     )
-
-    context = gameplay_context(game, token)
+    context = {
+        'token': token,
+        'game': game,
+        'gif': gif,
+        'phrase': phrase,
+        'received_gif': received_gif,
+        'origin_user': origin_user
+    }
 
     return render(request, 'game/multi_gameplay.html', context)
 
