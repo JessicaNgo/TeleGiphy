@@ -20,7 +20,7 @@ from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
 )
 
-User = get_user_model()
+# User = get_user_model()
 
 
 def index(request):
@@ -251,9 +251,10 @@ def pass_on(request, token):
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     if g.mode == 'multiplayer':
         print('at pass_on')
-        g.gameround_set.get(
-            user=request.user, round_number=g.current_round).update(
-                committed=True)
+        game_round = g.gameround_set.get(
+            user=request.user, round_number=g.current_round)
+        game_round.committed = True
+        game_round.save()
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
 
@@ -328,13 +329,18 @@ def multi_gameplay(request, token):
 
 def waiting_room(request, token):
     # logic to check to see if all players are ready
-    game = Game.objects.get(token=token)
+    try:
+        game = Game.objects.get(token=token)
+    except Game.DoesNotExist:
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
     for player in game_rounds:
-        if not player.giphy_url:
+        if not player.committed:
+            print(player)
             return render(request, 'game/multi_waiting_room.html')
     game.current_round += 1
     game.save()
+    print(game.current_round)
     if game.current_round > game.total_rounds:
         return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     else:
