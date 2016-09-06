@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as django_logout
 from django.db import IntegrityError
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -263,7 +263,7 @@ def pass_on(request, token):
     if g.mode == 'hotseat':
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     elif g.current_round > g.total_rounds:
-        return HttpResponseRedirect(reverse('game:gameover_waiting_room', args=(token,)))
+        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,))) #gameover_
     elif g.mode == 'multiplayer':
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
@@ -373,11 +373,17 @@ def multi_gameplay(request, token):
 
 
 def waiting_room(request, token):
-    pass
+    # logic to check to see if all players are ready
+    game = Game.objects.get(token=token)
+    game_rounds = game.gameround_set.filter(round_number=game.current_round)
+
+    if game_rounds.count == game.total_rounds:
+        return HttpResponseRedirect(reverse('game:multi_gameplay'))
+    return render(request, 'game/multi_waiting_room.html')
 
 
 def gameover_waiting_room(request, token):
-    pass
+    return render(request, 'game/multi_waiting_room.html')
 
 # ================== GAMEOVER =========================
 
