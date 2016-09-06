@@ -16,7 +16,6 @@ from django.contrib.auth.models import User
 
 # Localfolder
 from .giphy import gif_random
-# from .models import HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GifChainStarter, GifChainNode, UserGame 
 from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
 )
@@ -218,7 +217,7 @@ def choose_new_gif(request, token):
         lobby_url = 'game:multi_game_lobby'
 
     print (lobby_url)
-    # Use Giphy API to retrieve a gif for the phrase entered by the user    
+    # Use Giphy API to retrieve a gif for the phrase entered by the user
     response = gif_random(tag=request.POST['phrase'])
     try:
         gif = response.json()['data']['image_url']
@@ -228,16 +227,8 @@ def choose_new_gif(request, token):
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
-    # origin_user= request.POST.get('origin_user') 
-    #print(type(request.POST['origin_user']))
-    print(request.POST['origin_user'] == None)
-    print(request.POST['origin_user'])
-    print(request.POST)
-    #origin_user=1
-    #origin_user= User.objects.get(username=request.POST['origin_user'])
 
     # If there is already a gif, update, otherwise get new gif
-
     update_set, game_updated = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user=request.user,
@@ -257,7 +248,7 @@ def pass_on(request, token):
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     if g.mode == 'multiplayer':
         if g.current_round == g.total_rounds:
-            return HttpResponseRedirect(reverse('game:gameover', args=(token,))) #gameover
+            return HttpResponseRedirect(reverse('game:gameover', args=(token,)))  # gameover
         else:
             return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
@@ -269,27 +260,24 @@ def _is_player_turn(request, user):
 
 
 def multi_gameplay(request, token):
-# Each request recognizes which player is making the request due to session cookies
-    # You can test this by having private browser windows and logging in as other players
-# This should mimic 1 round of hotseat and store info as the request user in the model
-# After a player passes/commits to gif, they go to waiting
-# Waiting redirects to game_lobby when all players have gone 
+    # This should mimic 1 round of hotseat and store info as the request user in the model
+    # After a player passes/commits to gif, they go to waiting
+    # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
-    print(game.current_round)
 
     # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
-        previous_round = game.current_round - 1 
+        previous_round = game.current_round - 1
     else:
         previous_round = game.current_round
     game_rounds = game.gameround_set.filter(round_number=previous_round)
 
     # Determine the "placement" of current user and the user "before"
-    ordered_users = User.objects.filter(usergame__game__token=token).order_by('username')
+    ordered_users = User.objects.filter(
+        usergame__game__token=token).order_by('username')
 
     for user_index, user in enumerate(ordered_users):
         if user == request.user:
-            request_user_index = user_index
             try:
                 previous_user_index = user_index - 1
                 previous_user = ordered_users[previous_user_index]
@@ -312,10 +300,10 @@ def multi_gameplay(request, token):
         # if roundnumber of game is 1 (first turn)
         received_gif = ""
         origin_user = request.user
-    
+
     try:
         game_round = game.gameround_set.get(
-            round_number=game.current_round, 
+            round_number=game.current_round,
             user=request.user)
         gif = game_round.giphy_url
         phrase = game_round.user_text
@@ -327,7 +315,7 @@ def multi_gameplay(request, token):
             round_number=game.current_round,
             user=request.user,
             origin_user=origin_user
-            )
+        )
 
     context = {
         'token': token,
@@ -359,6 +347,7 @@ def waiting_room(request, token):
 
 def gameover_waiting_room(request, token):
     return render(request, 'game/multi_waiting_room.html')
+
 
 # ================== GAMEOVER =========================
 
@@ -401,14 +390,14 @@ def gameover(request, token):
         result = {name: {'rounds': []} for name in all_origin_users}
 
         # Populate dict for gameover display and record storage
-        for gTurn in game_rounds:
-            if gTurn.user_text == '':
+        for turn in game_rounds:
+            if turn.user_text == '':
                 user_text = '[BLANK]'
             else:
-                user_text = gTurn.user_text
-            result[gTurn.origin_user.username]['rounds'].append(
+                user_text = turn.user_text
+            result[turn.origin_user.username]['rounds'].append(
                 {'user_text': user_text,
-                 'giphy_url': gTurn.giphy_url})
+                 'giphy_url': turn.giphy_url})
 
         print(result)
         # Stores a json of all players actions in post-gameover model
