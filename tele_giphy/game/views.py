@@ -279,7 +279,7 @@ def multi_gameplay(request, token):
 
 
 def waiting_room(request, token):
-    
+    doge = {'doge': gif_random('doge').json()['data']['image_url']}
     # See if game has finished
     try:
         game = Game.objects.get(token=token)
