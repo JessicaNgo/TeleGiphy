@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 
 # Localfolder
 from .giphy import gif_random
+from .auxiliary import _give_random_name, _attach_user_to_game, _delete_game, _login_user
 from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
 )
@@ -28,10 +29,10 @@ def index(request):
     return render(request, 'game/index.html')
 
 
-def _give_random_name(request):
-    user = User.objects.create(username=str(uuid4()))
-    _login_user(request, user)
-    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
+# def _give_random_name(request):
+#     user = User.objects.create(username=str(uuid4()))
+#     _login_user(request, user)
+#     messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
 
 
 def new_game(request):
@@ -60,21 +61,21 @@ def new_game(request):
     return HttpResponseRedirect(reverse('game:pre_game_room', args=(new_token,)))
 
 
-def _attach_user_to_game(game, request):
-    try:
-        UserGame.objects.get(user=request.user)
-        url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
-        messages.error(request,
-            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
-                token=request.user.usergame.game, url=url))
-        raise IntegrityError
-    except UserGame.DoesNotExist:
-        UserGame.objects.create(user=request.user, game=game)
+# def _attach_user_to_game(game, request):
+#     try:
+#         UserGame.objects.get(user=request.user)
+#         url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
+#         messages.error(request,
+#             'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+#                 token=request.user.usergame.game, url=url))
+#         raise IntegrityError
+#     except UserGame.DoesNotExist:
+#         UserGame.objects.create(user=request.user, game=game)
 
 
-def _delete_game(game):
-    g = Game.objects.get(game=game)
-    g.delete()
+# def _delete_game(game):
+#     g = Game.objects.get(game=game)
+#     g.delete()
 
 
 def join_game(request):
@@ -137,20 +138,20 @@ def start_game(request, token):
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
-def _login_user(request, user):
-    """
-    Log in a user without requiring credentials (using ``login`` from
-    ``django.contrib.auth``, first finding a matching backend).
+# def _login_user(request, user):
+#     """
+#     Log in a user without requiring credentials (using ``login`` from
+#     ``django.contrib.auth``, first finding a matching backend).
 
-    """
-    from django.contrib.auth import load_backend, login
-    if not hasattr(user, 'backend'):
-        for backend in settings.AUTHENTICATION_BACKENDS:
-            if user == load_backend(backend).get_user(user.pk):
-                user.backend = backend
-                break
-    if hasattr(user, 'backend'):
-        return login(request, user)
+#     """
+#     from django.contrib.auth import load_backend, login
+#     if not hasattr(user, 'backend'):
+#         for backend in settings.AUTHENTICATION_BACKENDS:
+#             if user == load_backend(backend).get_user(user.pk):
+#                 user.backend = backend
+#                 break
+#     if hasattr(user, 'backend'):
+#         return login(request, user)
 
 
 def choose_name(request):
@@ -255,8 +256,8 @@ def pass_on(request, token):
 
 # ================== MULTIPLAYER GAMEPLAY =========================
 
-def _is_player_turn(request, user):
-    pass
+# def _is_player_turn(request, user):
+#     pass
 
 
 def multi_gameplay(request, token):
