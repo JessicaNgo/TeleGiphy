@@ -255,10 +255,11 @@ def pass_on(request, token):
         g.current_round += 1
         g.save()
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
-    elif g.current_round == g.total_rounds:
-        return HttpResponseRedirect(reverse('game:gameover', args=(token,))) #gameover_
-    elif g.mode == 'multiplayer':
-        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
+    if g.mode == 'multiplayer':
+        if g.current_round == g.total_rounds:
+            return HttpResponseRedirect(reverse('game:gameover', args=(token,))) #gameover
+        else:
+            return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
 
 # ================== MULTIPLAYER GAMEPLAY =========================
@@ -350,6 +351,8 @@ def waiting_room(request, token):
 
     if game_rounds.count() == game.total_rounds:
         print("init")
+        game.current_round += 1
+        game.save()
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
     return render(request, 'game/multi_waiting_room.html')
 
