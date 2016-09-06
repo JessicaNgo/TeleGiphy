@@ -238,7 +238,7 @@ def choose_new_gif(request, token):
 
     # If there is already a gif, update, otherwise get new gif
 
-    g.gameround_set.update_or_create(
+    update_set, game_updated = g.gameround_set.update_or_create(
         round_number=g.current_round,
         user=request.user,
         origin_user=User.objects.get(username=request.POST['origin_user']),
@@ -256,7 +256,7 @@ def pass_on(request, token):
     if g.mode == 'hotseat':
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     elif g.current_round > g.total_rounds:
-        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,))) #gameover_
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,))) #gameover_
     elif g.mode == 'multiplayer':
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
@@ -274,6 +274,7 @@ def multi_gameplay(request, token):
 # After a player passes/commits to gif, they go to waiting
 # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
+    print(game.current_round)
 
     # Game rounds corresponding to all players in this multiplayer game
     if game.current_round > 1:
@@ -342,7 +343,7 @@ def multi_gameplay(request, token):
 def waiting_room(request, token):
     # logic to check to see if all players are ready
     game = Game.objects.get(token=token)
-    game_rounds = game.gameround_set.filter(round_number=game.current_round-2)
+    game_rounds = game.gameround_set.filter(round_number=game.current_round)
     print(game.current_round)
     print(game_rounds.count())
     print(game.total_rounds)
@@ -393,7 +394,7 @@ def gameover(request, token):
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')
 
         # Users from game (for now), UserGame model not yet populating
-        all_origin_users = set([gRound.origin_user for gRound in game_rounds])
+        all_origin_users = set([gRound.origin_user.username for gRound in game_rounds])
         result = {name: {'rounds': []} for name in all_origin_users}
 
         # Populate dict for gameover display and record storage
@@ -402,10 +403,11 @@ def gameover(request, token):
                 user_text = '[BLANK]'
             else:
                 user_text = gTurn.user_text
-            result[gTurn.origin_user]['rounds'].append(
+            result[gTurn.origin_user.username]['rounds'].append(
                 {'user_text': user_text,
                  'giphy_url': gTurn.giphy_url})
 
+        print(result)
         # Stores a json of all players actions in post-gameover model
         postGameToken = str(uuid4())
         result_json = json.dumps(result)
@@ -440,78 +442,3 @@ def gameover(request, token):
         "result": result,
         "token": postGameToken,
         "game_mode": game_mode})
-
-
-###remove code below when gameplay is done, for reference
-#code is the incomplete linkedlist implementation
-# def multi_gameplay(request, token):
-#     #TO DO: determine player sequence
-#     game = Game.objects.get(token=token)
-#     users = User.objects.filter(usergame__game__token=token)
-    
-#     temp_user_list = [user.username for user in users if user.username != request.user]
-#     request.session['user_sequence'] = dict(enumerate(temp_user_list, start=1))
-    
-#     max_rounds = users.count()
-    
-#     if game.current_round <= max_rounds:
-        
-#         context = {
-#                 'token': token,
-#                 'game': game
-#                 }
-        
-#         if game.current_round == 1:
-#             first_player_node = GifChainStarter.objects.get(user=request.user).first_node
-#             gif = first_player_node.giphy_url
-#             phrase = first_player_node.user_text
-#         else:
-#             chain_owner_username = request.session['user_sequence'][(game.current_round)]
-#             chain_owner_user_object = User.objects.get(username = chain_owner_username)
-#             starter_chain = GifChainStarter.objects.get(user=chain_owner_user_object)
-#             last_node = starter_chain.get_last_node
-#             received_gif = last_node.giphy_url
-#             context['received_gif'] = received_gif
-#             # phrase = last_node.user_text
-        
-#         try:
-#             context['gif'] = last_node.next_node.giphy_url
-#             context['phrase'] = last_node.next_node.user_text
-#         except:
-#             pass
-
-#         return render(request, 'game/multi_gameplay.html', context)
-#     else:
-#         #end da game
-#         return render(request, 'game/multi_results.html')
-#     # users = game.usergame_set.users.all()
-#     '''
-    
-#     GifChainStarter ----- GIFCHAIN(USER) ----- GIFCHAIN(USER) ---- GIFCHAIN
-#       user
-#       order (in sequence of players)
-#       gif
-#       game
-#     '''
-#     #check if it is the players turn, if not, show a waiting for turn page, or anythingn really
-#     #if it is the players turn, let them enter a phrase/guess, same as hotseat
-#     #After passing on, redirect to results page, (results page will show nothing until final player goes_
-#     #if the final player has entered the gif, results page will be displayed
-#     #include a button on results page to refresh
-#     raise NotImplementedError("Hello")
-    
-# def multi_choose_new_gif(request, token):
-    
-#     raise NotImplementedError("Hello")
-
-
-# def multi_pass_on(request, token):
-#     chain_owner_username = request.session['user_sequence'][(game.current_round)]
-#     chain_owner_user_object = User.objects.get(username = chain_owner_username)
-#     starter_chain = GifChainStarter.objects.get(user=chain_owner_user_object)
-#     last_node = starter_chain.get_last_node
-#     game.current_round = game.current_round + 1
-#     game.save() 
-    
-#     last_node.next_node = GifChainNode.objects.create(user = request.user)
-#     raise NotImplementedError("Hello")
