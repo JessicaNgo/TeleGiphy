@@ -226,8 +226,8 @@ def choose_new_gif(request, token):
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
     g = Game.objects.get(token=token)
-
-    """Need to account for origin user for multi"""
+    origin_user = request.POST.get('origin_user')
+    print(origin_user)
 
     # If there is already a gif, update, otherwise get new gif
     if g.current_round == 1:
@@ -239,7 +239,7 @@ def choose_new_gif(request, token):
                 'user_text': request.POST['phrase']})
     else:
         # Get origin user
-        origin_user = g.gameround_set.get(round_number=g.current_round-1).origin_user
+        # origin_user = g.gameround_set.get(round_number=g.current_round-1).origin_user
         g.gameround_set.update_or_create(
             round_number=g.current_round,
             user=request.user,
