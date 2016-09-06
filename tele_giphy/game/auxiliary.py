@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
+from django.db import IntegrityError
 
 from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
