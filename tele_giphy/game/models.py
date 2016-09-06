@@ -41,6 +41,7 @@ class GameRound(models.Model):
     user = models.ForeignKey(User, related_name='gameround_user')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     origin_user = models.ForeignKey(User, related_name='origin_user', null=True)
+    comitted = models.BooleanField(default=False)
 
     def __str__(self):
         return "Round: " + str(self.round_number) + ". Username: " + self.user.username + ". Game token:" + str(self.game.token)

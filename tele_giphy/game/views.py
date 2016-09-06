@@ -251,8 +251,9 @@ def pass_on(request, token):
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     if g.mode == 'multiplayer':
         print('at pass_on')
-        # if g.current_round > g.total_rounds:
-        #     return HttpResponseRedirect(reverse('game:gameover', args=(token,)))  # gameover
+        g.gameround_set.get(
+            user=request.user, round_number=g.current_round).update(
+                committed=True)
         return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
 
@@ -332,7 +333,6 @@ def waiting_room(request, token):
     for player in game_rounds:
         if not player.giphy_url:
             return render(request, 'game/multi_waiting_room.html')
-    print("init")
     game.current_round += 1
     game.save()
     if game.current_round > game.total_rounds:
