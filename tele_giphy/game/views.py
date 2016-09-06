@@ -301,13 +301,13 @@ def multi_gameplay(request, token):
             break
 
     # Find game round requesting user is suppose to act on
-    previous_game_round = game_rounds.objects.get(
+    previous_game_round = game_rounds.get(
         user=previous_user, round_number=previous_round)
 
     # Build context
     if game.current_round > 1:
         # gif and origin_user from last player
-        received_gif = previous_round.giphy_url
+        received_gif = previous_game_round.giphy_url
         origin_user = previous_game_round.origin_user
     else:
         # if roundnumber of game is 1 (first turn)
