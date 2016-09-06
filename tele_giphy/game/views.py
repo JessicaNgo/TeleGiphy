@@ -251,10 +251,9 @@ def pass_on(request, token):
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
     if g.mode == 'multiplayer':
         print('at pass_on')
-        if g.current_round > g.total_rounds:
-            return HttpResponseRedirect(reverse('game:gameover', args=(token,)))  # gameover
-        else:
-            return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
+        # if g.current_round > g.total_rounds:
+        #     return HttpResponseRedirect(reverse('game:gameover', args=(token,)))  # gameover
+        return HttpResponseRedirect(reverse('game:waiting_room', args=(token,)))
 
 
 # ================== MULTIPLAYER GAMEPLAY =========================
@@ -330,15 +329,16 @@ def waiting_room(request, token):
     # logic to check to see if all players are ready
     game = Game.objects.get(token=token)
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
-    # for player in game_rounds:
-        # if player.get()
-
-    if game_rounds.count() == game.total_rounds:
-        print("init")
-        game.current_round += 1
-        game.save()
+    for player in game_rounds:
+        if not player.giphy_url:
+            return render(request, 'game/multi_waiting_room.html')
+    print("init")
+    game.current_round += 1
+    game.save()
+    if game.current_round > game.total_rounds:
+        return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
+    else:
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
-    return render(request, 'game/multi_waiting_room.html')
 
 
 def gameover_waiting_room(request, token):
