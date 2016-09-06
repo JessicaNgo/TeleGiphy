@@ -47,7 +47,8 @@ def new_game(request):
     while Game.objects.filter(token=new_token).exists():
         new_token = str(random.randint(1000, 9999))
     # Make new game in database with the token
-    request.session['game_mode'] = request.POST['game_mode']
+    if not 'game_mode' in request.session:
+        request.session['game_mode'] = request.POST['game_mode']
     game = Game(token=new_token, mode=request.session['game_mode'])
     game.save()
     if not request.user.is_authenticated():
