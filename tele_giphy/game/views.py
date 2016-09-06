@@ -237,20 +237,21 @@ def choose_new_gif(request, token):
         defaults={
             'giphy_url': gif,
             'user_text': request.POST['phrase']})
-    print(g.current_round)
 
     return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
 
 
 def pass_on(request, token):
     g = Game.objects.get(token=token)
+
+    # Hotseat mode
     if g.mode == 'hotseat':
-        print('in hotseat')
         g.current_round += 1
         g.save()
         return HttpResponseRedirect(reverse('game:game_lobby', args=(token,)))
+
+    # Multiplayer mode
     if g.mode == 'multiplayer':
-        print('at pass_on')
         game_round = g.gameround_set.get(
             user=request.user, round_number=g.current_round)
         game_round.committed = True
@@ -265,11 +266,7 @@ def _is_player_turn(request, user):
 
 
 def multi_gameplay(request, token):
-    # This should mimic 1 round of hotseat and store info as the request user in the model
-    # After a player passes/commits to gif, they go to waiting
-    # Waiting redirects to game_lobby when all players have gone 
     game = Game.objects.get(token=token)
-    print("current round", game.current_round)
 
     if game.current_round > 1:
         previous_round = game.current_round - 1
@@ -347,19 +344,15 @@ def waiting_room(request, token):
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
     for player in game_rounds:
         if not player.committed:
-            print(player)
             return render(request, 'game/multi_waiting_room.html')
+
+    # Progress the round, if end of game, go to game over
     game.current_round += 1
     game.save()
-    print(game.current_round)
     if game.current_round > game.total_rounds:
         return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     else:
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
-
-
-def gameover_waiting_room(request, token):
-    return render(request, 'game/multi_waiting_room.html')
 
 
 # ================== GAMEOVER =========================
@@ -412,7 +405,6 @@ def gameover(request, token):
                 {'user_text': user_text,
                  'giphy_url': turn.giphy_url})
 
-        print(result)
         # Stores a json of all players actions in post-gameover model
         postGameToken = str(uuid4())
         result_json = json.dumps(result)
