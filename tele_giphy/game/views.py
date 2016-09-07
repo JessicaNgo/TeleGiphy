@@ -368,7 +368,7 @@ def gameover(request, token):
         try:
             gameover = GameOverRecords.objects.get(game_token=token)
             # If game ended before actions were made
-            if len(gameover.records) == 2:
+            if gameover.records == '{}':
                 return render(request, 'game/gameover.html', {
                     "result": "Game ended without any rounds",
                     "doge": gif_random('doge').json()['data']['image_url']})
