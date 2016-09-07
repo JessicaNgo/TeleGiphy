@@ -23,10 +23,12 @@ from .models import (
 
 # ================== Aux items =========================
 
+
 def _give_random_name(request):
     user = User.objects.create(username=str(uuid4()))
     _login_user(request, user)
     messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
+
 
 def _attach_user_to_game(game, request):
     try:
@@ -39,9 +41,11 @@ def _attach_user_to_game(game, request):
     except UserGame.DoesNotExist:
         UserGame.objects.create(user=request.user, game=game)
 
+
 def _delete_game(game):
     g = Game.objects.get(game=game)
     g.delete()
+
 
 def _login_user(request, user):
     """
@@ -57,6 +61,7 @@ def _login_user(request, user):
                 break
     if hasattr(user, 'backend'):
         return login(request, user)
+
 
 def index(request):
     """
@@ -78,7 +83,7 @@ def new_game(request):
     while Game.objects.filter(token=new_token).exists():
         new_token = str(random.randint(1000, 9999))
     # Make new game in database with the token
-    if not 'game_mode' in request.session:
+    if 'game_mode' not in request.session:
         request.session['game_mode'] = request.POST['game_mode']
     game = Game(token=new_token, mode=request.session['game_mode'])
     game.save()
@@ -195,6 +200,62 @@ def gameplay_context(game, token):
     return context
 
 
+# Creates context for multiplayer games
+def multi_gameplay_context(game, token, request_user):
+    if game.current_round > 1:
+        previous_round = game.current_round - 1
+        # Determine the "placement" of current user and the user "before"
+        ordered_users = User.objects.filter(
+            usergame__game__token=token).order_by('username')
+
+        for user_index, user in enumerate(ordered_users):
+            if user == request_user:
+                try:
+                    previous_user = ordered_users[user_index-1]
+                except AssertionError:
+                    # First player with index of 0
+                    previous_user = ordered_users[len(ordered_users)-1]
+                break
+
+        # Find game round requesting user is suppose to act on
+        previous_game_round = game.gameround_set.get(
+            user=previous_user, round_number=previous_round)
+
+        received_gif = previous_game_round.giphy_url
+        origin_user = previous_game_round.origin_user
+
+    else:
+        previous_round = game.current_round
+        received_gif = ""
+        origin_user = request_user
+
+    try:
+        game_round = game.gameround_set.get(
+            round_number=game.current_round,
+            user=request_user)
+        gif = game_round.giphy_url
+        phrase = game_round.user_text
+    # no phrase has been entered by the player yet
+    except:
+        gif = static('img/giphy_static.gif')
+        phrase = ""
+        game.gameround_set.get_or_create(
+            round_number=game.current_round,
+            user=request_user,
+            origin_user=origin_user
+        )
+
+    context = {
+        'token': token,
+        'game': game,
+        'gif': gif,
+        'phrase': phrase,
+        'received_gif': received_gif,
+        'origin_user': origin_user
+    }
+    return context
+
+
 # ================== HOTSEAT GAMEPLAY =========================
 
 def hotseat_gameplay(request, token):
@@ -257,65 +318,12 @@ def pass_on(request, token):
 
 def multi_gameplay(request, token):
     game = Game.objects.get(token=token)
-
-    if game.current_round > 1:
-        previous_round = game.current_round - 1
-        # Determine the "placement" of current user and the user "before"
-        ordered_users = User.objects.filter(
-            usergame__game__token=token).order_by('username')
-
-        for user_index, user in enumerate(ordered_users):
-            if user == request.user:
-                try:
-                    previous_user_index = user_index - 1
-                    previous_user = ordered_users[previous_user_index]
-                except AssertionError:
-                    # First player with index of 0
-                    previous_user_index = len(ordered_users) - 1
-                    previous_user = ordered_users[previous_user_index]
-                break
-
-        # Find game round requesting user is suppose to act on
-        previous_game_round = game.gameround_set.get(
-            user=previous_user, round_number=previous_round)
-
-        received_gif = previous_game_round.giphy_url
-        origin_user = previous_game_round.origin_user
-
-    else:
-        previous_round = game.current_round
-        received_gif = ""
-        origin_user = request.user
-
-    try:
-        game_round = game.gameround_set.get(
-            round_number=game.current_round,
-            user=request.user)
-        gif = game_round.giphy_url
-        phrase = game_round.user_text
-    # no phrase has been entered by the player yet
-    except:
-        gif = static('img/giphy_static.gif')
-        phrase = ""
-        game.gameround_set.get_or_create(
-            round_number=game.current_round,
-            user=request.user,
-            origin_user=origin_user
-        )
-
-    context = {
-        'token': token,
-        'game': game,
-        'gif': gif,
-        'phrase': phrase,
-        'received_gif': received_gif,
-        'origin_user': origin_user
-    }
+    context = multi_gameplay_context(game, token, request.user)
     return render(request, 'game/multi_gameplay.html', context)
 
 
 def waiting_room(request, token):
-    doge = {'doge': gif_random('doge').json()['data']['image_url']}
+    
     # See if game has finished
     try:
         game = Game.objects.get(token=token)
@@ -333,8 +341,12 @@ def waiting_room(request, token):
 
     # logic to check to see if all players are ready
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
+    if len(game_rounds) != game.total_rounds:
+        doge = {'doge': gif_random('doge').json()['data']['image_url']}
+        return render(request, 'game/multi_waiting_room.html', doge)
     for player in game_rounds:
         if not player.committed:
+            doge = {'doge': gif_random('doge').json()['data']['image_url']}
             return render(request, 'game/multi_waiting_room.html', doge)
 
     # Progress the round, if end of game, go to game over
@@ -356,7 +368,7 @@ def gameover(request, token):
         try:
             gameover = GameOverRecords.objects.get(game_token=token)
             # If game ended before actions were made
-            if len(gameover.records) == 2:
+            if gameover.records == '{}':
                 return render(request, 'game/gameover.html', {
                     "result": "Game ended without any rounds",
                     "doge": gif_random('doge').json()['data']['image_url']})
