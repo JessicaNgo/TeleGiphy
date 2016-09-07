@@ -338,11 +338,11 @@ def waiting_room(request, token):
             return render(request, 'game/multi_waiting_room.html', doge)
 
     # Progress the round, if end of game, go to game over
-    game.current_round += 1
-    game.save()
     if game.current_round > game.total_rounds:
         return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     else:
+        game.current_round += 1
+        game.save()       
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
