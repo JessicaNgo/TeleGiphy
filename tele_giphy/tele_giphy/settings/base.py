@@ -28,7 +28,7 @@ PROJECT_DIR = os.path.dirname(DJANGO_PROJECT_DIR)
 SECRET_KEY = 'l@qo+aavqh3a+=xkqw5@wvrkdh10atuaw#td92l3nc3+fnnw(s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
