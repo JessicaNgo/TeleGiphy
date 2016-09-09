@@ -3,7 +3,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tele_giphy.settings.local")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tele_giphy.settings.production")
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
