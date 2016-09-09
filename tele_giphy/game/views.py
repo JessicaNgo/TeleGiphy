@@ -27,15 +27,18 @@ from .models import (
 def _give_random_name(request):
     user = User.objects.create(username=str(uuid4()))
     _login_user(request, user)
-    messages.info(request, 'Your name has randomly been set to {}.'.format(user.username))
+    messages.info(request, 'Your name has randomly been set to {}.'.format(
+        user.username))
 
 
 def _attach_user_to_game(game, request):
     try:
+        # Check if there's already said user
         UserGame.objects.get(user=request.user)
         url = reverse('game:pre_game_room', args=(request.user.usergame.game,))
         messages.error(request,
-            'You are already part of a game ({token}). <a href="{url}">Click here to join it.</a>'.format(
+            'You are already part of a game ({token}).'
+            '<a href="{url}">Click here to join it.</a>'.format(
                 token=request.user.usergame.game, url=url))
         raise IntegrityError
     except UserGame.DoesNotExist:
@@ -278,7 +281,7 @@ def choose_new_gif(request, token):
     response = gif_random(tag=request.POST['phrase'])
     try:
         gif = response.json()['data']['image_url']
-    # If a 'bad' response is retrieved, an error should pop-up otherwise we continue
+    # If a 'bad' response is retrieved, error pops up, otherwise continue
     except TypeError:
         messages.error(request, 'The phrase you entered could not produce a gif, please try something different.')
         return HttpResponseRedirect(reverse(lobby_url, args=(token,)))
@@ -322,9 +325,9 @@ def multi_gameplay(request, token):
     return render(request, 'game/multi_gameplay.html', context)
 
 
+# Lots of user logic to determine whether the player should continue
 def waiting_room(request, token):
-    
-    # See if game has finished
+    # See if game exists
     try:
         game = Game.objects.get(token=token)
     except Game.DoesNotExist:
@@ -361,8 +364,6 @@ def waiting_room(request, token):
 # ================== GAMEOVER =========================
 
 def gameover(request, token):
-    # Checks what kind of token is passed and fetch object
-    # End of game token
     if len(token) == 4:
         # Check if gameover already happened, if so display postGameToken
         try:
@@ -382,14 +383,14 @@ def gameover(request, token):
         except GameOverRecords.DoesNotExist:
             g = get_object_or_404(Game, token=token)
 
-    # (Maybe) gameover records token
+    # Check if gameover records token
     elif len(token) > 4:
         g = get_object_or_404(GameOverRecords, token=token)
 
     # Type of game that's being played
     game_mode = g.mode
 
-    # Processes gameRounds and stores it
+    # If g is a game, process and store, then display
     if isinstance(g, Game):
         # Fetch game round records, ordered by origin user and round number
         game_rounds = g.gameround_set.all().order_by('origin_user', 'round_number')

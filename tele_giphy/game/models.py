@@ -53,28 +53,3 @@ class GameOverRecords(models.Model):
     records = models.CharField(max_length=500000)
     game_token = models.CharField(max_length=16)
     mode = models.CharField(max_length=11, default=HOTSEAT_MODE)
-
-#Delete later when done gameplay, old incomplete implementation using linked list    
-# class GifChainStarter(models.Model):
-#     user = models.OneToOneField(User)
-#     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-#     first_node = models.OneToOneField('GifChainNode', null=True)
-    
-#     def get_last_node(self):
-#         node = first_node
-#         while node != None:
-#             last_node = node
-#             node = node.next_node
-#         return last_node
-#       # return da last node in the chain  
-#       # first --> "doge" first.next_node = dogegif --> "no doge" first.next_node.next_node = no doge gif --> "why no doge"  first.next_node.next_node.next_node = whynodogegif
-#       # [1,2,3] + 4 --> last == 3 we put 4 after 3
-#     # def __str__(self):
-#     #     return user.username
-
-# class GifChainNode(models.Model):
-#     next_node = models.OneToOneField('self', related_name='previous_node', null=True)  #  GifChainStart.first_node ---> GifChainNode.next_node <---> GifChainNode.previous_node
-#     giphy_url = models.CharField(max_length=2083, blank=True)  # 2083 is max of URL length
-#     user_text = models.CharField(max_length=150, blank=True)
-#     user = models.ForeignKey(User, related_name='gif_owner', null=True)
-#     origin_user = models.ForeignKey(UserGame, related_name='origin_user', null=True)
