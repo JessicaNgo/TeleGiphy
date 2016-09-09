@@ -4,4 +4,4 @@ INSTALLED_APPS = INSTALLED_APPS + [
     'debug_toolbar',
 ]
 
-ALLOWED_HOSTS = ['poenbwu.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost']
