@@ -11,8 +11,6 @@
 <div class = "row">
     <div class = "text-center">
         <h2>Has a doge!</h2>
-        <a href="{{ doge }}"><img src="{{ doge }}"></a>
-        <br>
         <script>
             var clicks = 0
             function onClick() {
@@ -25,7 +23,9 @@
                 }
             }
         </script>
-        <button type="button" class="btn" onClick="onClick()">Click me</button>
+        <a onClick="onClick()"><img src="{{ doge }}"></a>
+        <br>
+        {# <button type="button" class="btn" onClick="onClick()">Click me</button> #}
         <p>Clicks: <a id="clicks">0</a></p>
     </div>
 </div>
