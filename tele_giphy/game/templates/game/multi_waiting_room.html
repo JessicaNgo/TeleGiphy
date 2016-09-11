@@ -8,9 +8,25 @@
     <h1>Waiting for other Players</h1>
   </div>
 </div>
-<div class = "text-center">
-    <h2>Has a doge!</h2>
-    <a href="{{ doge }}"><img src="{{ doge }}"></a>
+<div class = "row">
+    <div class = "text-center">
+        <h2>Has a doge!</h2>
+        <a href="{{ doge }}"><img src="{{ doge }}"></a>
+        <br>
+        <script>
+            var clicks = 0
+            function onClick() {
+                if (clicks == 4){
+                    location.href="/waiting_room/{{ token }}"
+                }
+                else {
+                    clicks += 1
+                    document.getElementById('clicks').innerHTML = clicks;
+                }
+            }
+        </script>
+        <button type="button" class="btn" onClick="onClick()">Click me</button>
+        <p>Clicks: <a id="clicks">0</a></p>
+    </div>
 </div>
 {% endblock %}
-

@@ -342,12 +342,14 @@ def waiting_room(request, token):
     # logic to check to see if all players are ready
     game_rounds = game.gameround_set.filter(round_number=game.current_round)
     if len(game_rounds) != game.total_rounds:
-        doge = {'doge': gif_random('doge').json()['data']['image_url']}
-        return render(request, 'game/multi_waiting_room.html', doge)
+        context = {'doge': gif_random('doge').json()['data']['image_url'],
+                   'token': token}
+        return render(request, 'game/multi_waiting_room.html', context)
     for player in game_rounds:
         if not player.committed:
-            doge = {'doge': gif_random('doge').json()['data']['image_url']}
-            return render(request, 'game/multi_waiting_room.html', doge)
+            context = {'doge': gif_random('doge').json()['data']['image_url'],
+                       'token': token}
+            return render(request, 'game/multi_waiting_room.html', context)
 
     # Progress the round, if end of game, go to game over
     if game.current_round > game.total_rounds:
