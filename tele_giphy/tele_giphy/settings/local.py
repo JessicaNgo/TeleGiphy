@@ -5,3 +5,5 @@ INSTALLED_APPS = INSTALLED_APPS + [
 ]
 
 ALLOWED_HOSTS = ['localhost']
+
+DEBUG = True
