@@ -10,11 +10,11 @@
 </div>
 <div class = "row">
     <div class = "text-center">
-        <h2>Has a doge!</h2>
+        <h2>Click on a doge!</h2>
         <script>
             var clicks = 0
             function onClick() {
-                if (clicks == 4){
+                if (clicks > 9){
                     location.href="/waiting_room/{{ token }}"
                 }
                 else {
