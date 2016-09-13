@@ -20,10 +20,11 @@ def _gif_translate(string='leeroy', api_key=KEY):
     data = get(endpoint, params)
     return data
 
-def giphy_call(call_type='translate', string='doge'):
+
+def giphy_call(call_type='translate', phrase='doge', api_key=KEY):
     if call_type == 'translate':
-        pass
+        return _gif_translate(tag=phrase, api_key)
     elif call_type == 'random':
-        pass
+        return _gif_random(string=phrase, api_key)
     else:
-        pass
+        return {'call_type': 'error', 'data': ''}
