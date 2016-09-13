@@ -118,18 +118,22 @@ class TestTranslateFail:
         for item in expected:
             assert item in resp.json()
 
+
 # Test giphy funnel
 @pytest.mark.usefixtures('load_json')
 @pytest.mark.parametrize("load_json", ['translate_403.json'], indirect=True)
-class TestTranslateFail:
+class TestGiphyFunnelTranslate:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, load_json):
         self.json = load_json
         # GET 403 setup
-        # Might want a more comprehensive regex to capture wrong api key
         responses.add(responses.GET,
                       'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=doge',
+                      json=self.json, status=200, match_querystring=True)        
+        # GET 200 setup
+        responses.add(responses.GET,
+                      'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
                       json=self.json, status=200, match_querystring=True)
 
     @responses.activate
