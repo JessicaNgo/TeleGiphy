@@ -12,6 +12,8 @@ from ..giphy import (_gif_random as gif_random,
                      giphy_call)
 
 
+BASE_GIPHY_URL = "http://api.giphy.com/v1/gifs/"
+
 # Load JSON fixtures
 @pytest.fixture(scope='module')
 def load_json(request):
@@ -123,24 +125,28 @@ def loadin_json(filename):
 
 
 # Test giphy funnel success
-@pytest.mark.parametrize("json_file", ['translate_200.json', 'random_200.json'])
+@pytest.mark.parametrize("json_filename", ['translate_200.json', 'random_200.json'])
 @pytest.mark.parametrize("status", [200])
 class TestGiphyFunnelSuccess:
     # Sets up request fixture;
     @pytest.fixture(autouse=True)
-    def setUp(self, json_file, status):
-        self.json = loadin_json(json_file)
-        # GET translate setup
-        responses.add(responses.GET,
-                      'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
-                      json=self.json, status=status, match_querystring=True)        
-        responses.add(responses.GET,
-                      'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=doge',
-                      json=self.json, status=status, match_querystring=True)
+    def setUp(self, json_filename, status):
+        self.json = loadin_json(json_filename)
+        if 'translate' in json_filename:
+            url = BASE_GIPHY_URL + "translate?api_key=dc6zaTOxFJmzC&s=doge"
+        elif 'random' in json_filename:
+            url = BASE_GIPHY_URL + "random?api_key=dc6zaTOxFJmzC&tag=doge"
+        else:
+            raise ValueError
+        responses.add(responses.GET, url, json=self.json,
+                      status=status, match_querystring=True)
 
     @responses.activate
-    def testExpectedResponseTraslate(self):
-        resp = giphy_call()
+    def testExpectedResponseTraslate(self, json_filename):
+        if 'random' in json_filename:
+            resp = giphy_call(call_type='random')
+        else:
+            resp = giphy_call()
         expected = self.json
         assert resp.status_code == 200
         # Check json
