@@ -115,32 +115,35 @@ class TestTranslateFail:
         for item in expected:
             assert item in resp.json()
 
+# Temp function for funnel
+def loadin_json(filename):
+    path_to_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', filename)
+    with open(path_to_json, 'rU') as json_file:
+        return json.load(json_file)
 
-# Test giphy funnel fail
-@pytest.mark.parametrize("status", [200, 403])
-@pytest.mark.parametrize("load_json", ['translate_200.json', 'translate_403.json'], indirect=True)
+
+# Test giphy funnel success
+@pytest.mark.parametrize("json_file", ['translate_200.json', 'random_200.json'])
+@pytest.mark.parametrize("status", [200])
 class TestGiphyFunnelSuccess:
     # Sets up request fixture;
     @pytest.fixture(autouse=True)
-    def setUp(self, load_json, status):
-        self.json = load_json
+    def setUp(self, json_file, status):
+        self.json = loadin_json(json_file)
         # GET translate setup
         responses.add(responses.GET,
                       'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
                       json=self.json, status=status, match_querystring=True)        
         responses.add(responses.GET,
-                      'http://api.giphy.com/v1/gifs/translate?api_key=abc&tag=doge',
+                      'http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=doge',
                       json=self.json, status=status, match_querystring=True)
 
     @responses.activate
     def testExpectedResponseTraslate(self):
-        # print(self.json)
         resp = giphy_call()
-        # print(resp.url)
         expected = self.json
-        # status code
-        assert resp.status_code == 403
+        assert resp.status_code == 200
         # Check json
-        loaded_json = resp.json
+        loaded_json = resp.json()
         # json is the same between fixture and request
         assert expected == loaded_json 
