@@ -22,7 +22,6 @@ def load_json(request):
 
 
 # Tests where giphy.gif_random get 200
-@pytest.mark.usefixtures('load_json')
 @pytest.mark.parametrize("load_json", ['random_200.json'], indirect=True)
 class TestRandomSuccess:
     # Sets up request fixture
@@ -46,7 +45,6 @@ class TestRandomSuccess:
 
 
 # Tests where giphy.gif_random get 403
-@pytest.mark.usefixtures('load_json')
 @pytest.mark.parametrize("load_json", ['random_403.json'], indirect=True)
 class TestRandomFail:
     # Sets up request fixture
@@ -71,7 +69,6 @@ class TestRandomFail:
 
 
 # Tests where giphy.gif_translate get 200
-@pytest.mark.usefixtures('load_json')
 @pytest.mark.parametrize("load_json", ['translate_200.json'], indirect=True)
 class TestTranslateSuccess:
     # Sets up request fixture
@@ -95,8 +92,7 @@ class TestTranslateSuccess:
             assert item in resp.json()
 
 
-# Tests where giphy.gif_translate get 403
-@pytest.mark.usefixtures('load_json')
+# Tests giphy get 403
 @pytest.mark.parametrize("load_json", ['translate_403.json'], indirect=True)
 class TestTranslateFail:
     # Sets up request fixture
@@ -120,31 +116,29 @@ class TestTranslateFail:
             assert item in resp.json()
 
 
-# Test giphy funnel success
-# @pytest.mark.usefixtures('load_json')
+# Test giphy funnel fail
 @pytest.mark.parametrize("load_json", ['translate_200.json', 'random_200.json'], indirect=True)
-class TestGiphyFunnelTranslate:
-    # Sets up request fixture
+class TestGiphyFunnelSuccess:
+    # Sets up request fixture;
     @pytest.fixture(autouse=True)
     def setUp(self, load_json):
         self.json = load_json
-        # GET 403 setup
+        # GET translate setup
         responses.add(responses.GET,
                       'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=doge',
-                      json=self.json, status=200, match_querystring=True)        
-        # GET 200 setup
+                      json=self.json, status=403, match_querystring=True)        
+        # GET random setup
         responses.add(responses.GET,
-                      'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
-                      json=self.json, status=200, match_querystring=True)
+                      'http://api.giphy.com/v1/gifs/random?api_key=abc&tag=doge',
+                      json=self.json, status=403, match_querystring=True)
 
     @responses.activate
-    def testExpectedResponse(self):
+    def testExpectedResponseTraslate(self):
+        print(self.json)
         resp = giphy_call(api_key='abc')
+        print(resp.url)
         expected = self.json
-        # print(resp.json())
-        # print(resp.status_code)
         # status code
-        assert resp.status_code == 200
+        assert resp.status_code == 403
         # json is the same between fixture and request
-        for item in expected:
-            assert item in resp.json()
+        assert expected == resp.json() 
