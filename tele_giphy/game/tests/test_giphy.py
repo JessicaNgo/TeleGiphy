@@ -8,7 +8,8 @@ import responses
 
 # Localfolder
 from ..giphy import (_gif_random as gif_random,
-                     _gif_translate as gif_translate)
+                     _gif_translate as gif_translate,
+                     giphy_call)
 
 
 # Load JSON fixtures
@@ -119,29 +120,31 @@ class TestTranslateFail:
             assert item in resp.json()
 
 
-# # Test giphy funnel success
+# Test giphy funnel success
 # @pytest.mark.usefixtures('load_json')
-# @pytest.mark.parametrize("load_json", ['translate_403.json'], indirect=True)
-# class TestGiphyFunnelTranslate:
-#     # Sets up request fixture
-#     @pytest.fixture(autouse=True)
-#     def setUp(self, load_json):
-#         self.json = load_json
-#         # GET 403 setup
-#         responses.add(responses.GET,
-#                       'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=doge',
-#                       json=self.json, status=200, match_querystring=True)        
-#         # GET 200 setup
-#         responses.add(responses.GET,
-#                       'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
-#                       json=self.json, status=200, match_querystring=True)
+@pytest.mark.parametrize("load_json", ['translate_200.json', 'random_200.json'], indirect=True)
+class TestGiphyFunnelTranslate:
+    # Sets up request fixture
+    @pytest.fixture(autouse=True)
+    def setUp(self, load_json):
+        self.json = load_json
+        # GET 403 setup
+        responses.add(responses.GET,
+                      'http://api.giphy.com/v1/gifs/translate?api_key=abc&s=doge',
+                      json=self.json, status=200, match_querystring=True)        
+        # GET 200 setup
+        responses.add(responses.GET,
+                      'http://api.giphy.com/v1/gifs/translate?api_key=dc6zaTOxFJmzC&s=doge',
+                      json=self.json, status=200, match_querystring=True)
 
-#     @responses.activate
-#     def testExpectedResponse(self):
-#         resp = giphy_call(api_key='abc')
-#         expected = self.json
-#         # status code
-#         assert resp.status_code == 200
-#         # json is the same between fixture and request
-#         for item in expected:
-#             assert item in resp.json()
+    @responses.activate
+    def testExpectedResponse(self):
+        resp = giphy_call(api_key='abc')
+        expected = self.json
+        # print(resp.json())
+        # print(resp.status_code)
+        # status code
+        assert resp.status_code == 200
+        # json is the same between fixture and request
+        for item in expected:
+            assert item in resp.json()
