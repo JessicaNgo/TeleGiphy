@@ -126,11 +126,11 @@ def loadin_json(filename):
 
 # Test giphy funnel success
 @pytest.mark.parametrize("json_filename", ['translate_200.json', 'random_200.json'])
-@pytest.mark.parametrize("status", [200])
 class TestGiphyFunnelSuccess:
     # Sets up request fixture;
     @pytest.fixture(autouse=True)
-    def setUp(self, json_filename, status):
+    def setUp(self, json_filename):
+        status = 200
         self.json = loadin_json(json_filename)
         if 'translate' in json_filename:
             url = BASE_GIPHY_URL + "translate?api_key=dc6zaTOxFJmzC&s=doge"
@@ -142,7 +142,7 @@ class TestGiphyFunnelSuccess:
                       status=status, match_querystring=True)
 
     @responses.activate
-    def testExpectedResponseTraslate(self, json_filename):
+    def testExpectedResponse(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
         else:
@@ -151,5 +151,36 @@ class TestGiphyFunnelSuccess:
         assert resp.status_code == 200
         # Check json
         loaded_json = resp.json()
-        # json is the same between fixture and request
-        assert expected == loaded_json 
+        assert expected == loaded_json
+        assert loaded_json['meta']['status'] == 200 
+
+
+# Test giphy funnel fail
+@pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
+class TestGiphyFunnelFail:
+    # Sets up request fixture;
+    @pytest.fixture(autouse=True)
+    def setUp(self, json_filename):
+        status = 403
+        self.json = loadin_json(json_filename)
+        if 'translate' in json_filename:
+            url = BASE_GIPHY_URL + "translate?api_key=dc6zaTOxFJmzC&s=doge"
+        elif 'random' in json_filename:
+            url = BASE_GIPHY_URL + "random?api_key=dc6zaTOxFJmzC&tag=doge"
+        else:
+            raise ValueError
+        responses.add(responses.GET, url, json=self.json,
+                      status=status, match_querystring=True)
+
+    @responses.activate
+    def testExpectedResponse(self, json_filename):
+        if 'random' in json_filename:
+            resp = giphy_call(call_type='random')
+        else:
+            resp = giphy_call()
+        expected = self.json
+        assert resp.status_code == 403
+        # Check json
+        loaded_json = resp.json()
+        assert expected == loaded_json
+        assert loaded_json['meta']['status'] == 403 
