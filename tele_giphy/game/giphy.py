@@ -21,10 +21,22 @@ def _gif_translate(string='leeroy', api_key=KEY):
     return data
 
 
+# Standarize random and translate endpoint returns
 def giphy_call(call_type='translate', phrase='doge', api_key=KEY):
+    standard_data = {'call_type': '', 'image_url': '', 'phrase': ''}
     if call_type == 'translate':
-        return _gif_translate(string=phrase, api_key=api_key)
+        resp = _gif_translate(string=phrase, api_key=api_key)
+        standard_data['call_type'] = 'translate'
+        standard_data['phrase'] = phrase
+        standard_data['image_url'] = resp.json()['data']['images']['original']['url']
+        return standard_data
+
     elif call_type == 'random':
-        return _gif_random(tag=phrase, api_key=api_key)
+        resp = _gif_random(tag=phrase, api_key=api_key)
+        standard_data['call_type'] = 'random'
+        standard_data['phrase'] = phrase
+        standard_data['image_url'] = resp.json()['data']['image_url']
+        return standard_data
     else:
-        return {'call_type': 'error', 'data': ''}
+        standard_data['call_type'] = 'error'
+        return standard_data
