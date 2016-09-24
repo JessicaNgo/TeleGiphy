@@ -59,15 +59,18 @@ class TestSuccess:
     def test_funnel(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
-            expected = load_json("random_{}.json".format(self.status))
+            expected = {'call_type': 'random',
+                        'image_url': '',
+                        'phrase': '',
+                        'meta': {}}
+            # expected = load_json("random_{}.json".format(self.status))
         else:
             resp = giphy_call()
             expected = load_json("random_{}.json".format(self.status))
         expected = self.json
         assert resp['meta']['status'] == 200
-        # Check json
-        # loaded_json = resp.json()
-        # assert expected == loaded_json
+        # Check standarized dict
+        # asserts expected == loaded_json
 
 # Tests giphy get 403
 @pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
@@ -112,6 +115,6 @@ class TestFail:
             resp = giphy_call(api_key='abc')
             expected = load_json("translate_{}.json".format(self.status))
         assert resp['meta']['status'] == 403
-        # Check json
+        # Check standarized dict
         # loaded_json = resp.json()
         # assert expected == loaded_json
