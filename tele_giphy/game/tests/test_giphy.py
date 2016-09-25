@@ -7,10 +7,9 @@ import pytest
 import responses
 
 # Localfolder
-from ..giphy import (_gif_random as gif_random,
-                     _gif_translate as gif_translate,
-                     giphy_call)
-
+from ..giphy import (
+    _gif_random as gif_random, _gif_translate as gif_translate, giphy_call,
+)
 
 BASE_GIPHY_URL = "http://api.giphy.com/v1/gifs/"
 

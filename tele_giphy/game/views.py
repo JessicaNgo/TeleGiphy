@@ -7,19 +7,20 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout as django_logout
+from django.contrib.auth.models import User
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db import IntegrityError
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.contrib.auth.models import User
 
 # Localfolder
 from .giphy import gif_random
 # from .auxiliary import _give_random_name, _attach_user_to_game, _delete_game, _login_user
 from .models import (
-    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
+    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, GameRound, UserGame,
 )
+
 
 # ================== Aux items =========================
 
