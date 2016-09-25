@@ -60,17 +60,18 @@ class TestSuccess:
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
             expected = {'call_type': 'random',
-                        'image_url': '',
-                        'phrase': '',
-                        'meta': {}}
-            # expected = load_json("random_{}.json".format(self.status))
+                        'image_url': 'http://media0.giphy.com/media/VelUfLV3j2dOM/giphy.gif',
+                        'phrase': 'doge',
+                        'meta': {'status': 200, 'msg': 'OK'}}
         else:
             resp = giphy_call()
-            expected = load_json("random_{}.json".format(self.status))
-        expected = self.json
+            expected = {'call_type': 'translate',
+                        'image_url': 'http://media3.giphy.com/media/G51FVzyR21464/giphy.gif',
+                        'phrase': 'doge',
+                        'meta': {'status': 200, 'msg': 'OK'}}
         assert resp['meta']['status'] == 200
-        # Check standarized dict
-        # asserts expected == loaded_json
+        # Check standarized; dict
+        assert expected == resp
 
 # Tests giphy get 403
 @pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
@@ -110,11 +111,16 @@ class TestFail:
     def test_funnel(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random', api_key='abc')
-            expected = load_json("random_{}.json".format(self.status))
+            expected = {'call_type': '',
+                        'image_url': '',
+                        'phrase': '',
+                        'meta': {'status': 403, 'msg': 'Forbidden'}}
         else:
             resp = giphy_call(api_key='abc')
-            expected = load_json("translate_{}.json".format(self.status))
+            expected = {'call_type': '',
+                        'image_url': '',
+                        'phrase': '',
+                        'meta': {'status': 403, 'msg': 'Forbidden'}}
         assert resp['meta']['status'] == 403
         # Check standarized dict
-        # loaded_json = resp.json()
-        # assert expected == loaded_json
+        assert expected == resp
