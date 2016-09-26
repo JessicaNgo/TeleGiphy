@@ -32,10 +32,7 @@ def giphy_call(call_type='translate', phrase='doge', api_key=KEY, rating=''):
                      'phrase': '',
                      'meta': {}}
     if call_type == 'translate':
-        if not rating:
-            resp = _gif_translate(string=phrase, api_key=api_key)
-        else:
-            resp = _gif_translate(string=phrase, api_key=api_key, rating=rating)
+        resp = _gif_translate(string=phrase, api_key=api_key, rating=rating)
         resp_json = resp.json()
         standard_data['meta'] = resp_json['meta']
         if resp.status_code == 200:
@@ -45,10 +42,7 @@ def giphy_call(call_type='translate', phrase='doge', api_key=KEY, rating=''):
         return standard_data
 
     elif call_type == 'random':
-        if not rating:
-            resp = _gif_random(tag=phrase, api_key=api_key)
-        else:
-            resp = _gif_random(tag=phrase, api_key=api_key, rating=rating)
+        resp = _gif_random(tag=phrase, api_key=api_key, rating=rating)
         resp_json = resp.json()
         standard_data['meta'] = resp_json['meta']
         if resp.status_code == 200:

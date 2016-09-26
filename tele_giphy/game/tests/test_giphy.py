@@ -23,7 +23,7 @@ def load_json(filename):
 
 
 @pytest.mark.parametrize("json_filename", ['translate_200.json', 'random_200.json'])
-class TestSuccess:
+class Test_HTTP_200:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
@@ -39,7 +39,7 @@ class TestSuccess:
                       status=self.status, match_querystring=True)
 
     @responses.activate
-    def test_functions(self, json_filename):
+    def test_gif_functions(self, json_filename):
         if 'translate' in json_filename:
             resp = gif_translate(string='doge', api_key='dc6zaTOxFJmzC')
             expected = load_json("translate_{}.json".format(self.status))
@@ -56,7 +56,7 @@ class TestSuccess:
             assert item in resp.json()
 
     @responses.activate
-    def test_funnel(self, json_filename):
+    def test_giphy_call(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
             expected = {'call_type': 'random',
@@ -75,7 +75,7 @@ class TestSuccess:
 
 # Tests giphy get 403
 @pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
-class TestFail:
+class Test_HTTP_403:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
@@ -91,7 +91,7 @@ class TestFail:
                       status=self.status, match_querystring=True)
 
     @responses.activate
-    def test_functions(self, json_filename):
+    def test_gif_functions(self, json_filename):
         if 'translate' in json_filename:
             resp = gif_translate(api_key='abc', string='doge')
             expected = load_json("translate_{}.json".format(self.status))
@@ -108,7 +108,7 @@ class TestFail:
             assert item in resp.json()
 
     @responses.activate
-    def test_funnel(self, json_filename):
+    def test_giphy_call(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random', api_key='abc')
             expected = {'call_type': '',
