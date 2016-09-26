@@ -9,7 +9,7 @@ def _gif_random(tag='american psycho', api_key=KEY, rating=''):
     # See https://github.com/Giphy/GiphyAPI#random-endpoint
     endpoint = GIPHY_URL + 'random'
     params = {'api_key': api_key, 'tag': tag}
-    if not rating:
+    if rating:
         params['rating'] = rating
     data = get(endpoint, params)
     return data
@@ -19,7 +19,7 @@ def _gif_translate(string='leeroy', api_key=KEY, rating=''):
     # See https://github.com/Giphy/GiphyAPI#translate-endpoint
     endpoint = GIPHY_URL + 'translate'
     params = {'api_key': api_key, 's': string}
-    if not rating:
+    if rating:
         params['rating'] = rating
     data = get(endpoint, params)
     return data
