@@ -59,12 +59,14 @@ class Test_HTTP_200:
     def test_giphy_call(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
+            # From random_200.json
             expected = {'call_type': 'random',
                         'image_url': 'http://media0.giphy.com/media/VelUfLV3j2dOM/giphy.gif',
                         'phrase': 'doge',
                         'meta': {'status': 200, 'msg': 'OK'}}
         else:
             resp = giphy_call()
+            # From translate_200.json
             expected = {'call_type': 'translate',
                         'image_url': 'http://media3.giphy.com/media/G51FVzyR21464/giphy.gif',
                         'phrase': 'doge',
