@@ -34,18 +34,18 @@ def giphy_call(call_type='translate', phrase='doge', api_key=KEY, rating=''):
 
     if call_type == 'translate':
         api_resp = _gif_translate(string=phrase, api_key=api_key, rating=rating)
-        resp_json = api_resp.json()
-        standard_data['meta'] = resp_json['meta']
+        api_resp_json = api_resp.json()
+        standard_data['meta'] = api_resp_json['meta']
         if resp.status_code == 200:
             standard_data = standarize_data(standard_data, call_type, phrase,
-                                            resp_json['data']['images']['original']['url'])
+                                            api_resp_json['data']['images']['original']['url'])
     elif call_type == 'random':
         api_resp = _gif_random(tag=phrase, api_key=api_key, rating=rating)
-        resp_json = api_resp.json()
-        standard_data['meta'] = resp_json['meta']
+        api_resp_json = api_resp.json()
+        standard_data['meta'] = api_resp_json['meta']
         if resp.status_code == 200:
             standard_data = standarize_data(standard_data, call_type, phrase,
-                                            resp_json['data']['image_url'])
+                                            api_resp_json['data']['image_url'])
     else:
         standard_data['call_type'] = 'error'
     return standard_data
