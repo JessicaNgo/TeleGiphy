@@ -92,7 +92,7 @@ class test_giphy_api_call_invalid_api_key:
                       status=self.status, match_querystring=True)
 
     @responses.activate
-    def test_gif_api_call_functions(self, json_filename):
+    def test_gif_api_call_functions_return(self, json_filename):
         if 'translate' in json_filename:
             resp = gif_translate(api_key='abc', string='doge')
             expected = load_json("translate_{}.json".format(self.status))
