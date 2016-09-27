@@ -1,14 +1,18 @@
+# Standard Library
 from uuid import uuid4
 
-from django.contrib.auth.models import User
+# Django
 from django.conf import settings
 from django.contrib import messages
-from django.urls import reverse
+from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.urls import reverse
 
+# Localfolder
 from .models import (
-    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, UserGame, GameRound
+    HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, GameRound, UserGame,
 )
+
 
 def _give_random_name(request):
     user = User.objects.create(username=str(uuid4()))
