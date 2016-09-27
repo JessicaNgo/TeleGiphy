@@ -22,7 +22,7 @@ def load_json(filename):
 
 
 @pytest.mark.parametrize("json_filename", ['translate_200.json', 'random_200.json'])
-class Test_HTTP_200:
+class test_giphy_api_call_valid_results:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
@@ -38,7 +38,7 @@ class Test_HTTP_200:
                       status=self.status, match_querystring=True)
 
     @responses.activate
-    def test_gif_functions(self, json_filename):
+    def test_gif_api_call_functions(self, json_filename):
         if 'translate' in json_filename:
             resp = gif_translate(string='doge', api_key='dc6zaTOxFJmzC')
             expected = load_json("translate_{}.json".format(self.status))
@@ -55,7 +55,7 @@ class Test_HTTP_200:
             assert item in resp.json()
 
     @responses.activate
-    def test_giphy_call(self, json_filename):
+    def test_giphy_api_call_standardized_returns(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random')
             # From random_200.json
@@ -76,7 +76,7 @@ class Test_HTTP_200:
 
 # Tests giphy get 403
 @pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
-class Test_HTTP_403:
+class test_giphy_api_call_invalid_api_key:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
@@ -92,7 +92,7 @@ class Test_HTTP_403:
                       status=self.status, match_querystring=True)
 
     @responses.activate
-    def test_gif_functions(self, json_filename):
+    def test_gif_api_call_functions(self, json_filename):
         if 'translate' in json_filename:
             resp = gif_translate(api_key='abc', string='doge')
             expected = load_json("translate_{}.json".format(self.status))
@@ -109,7 +109,7 @@ class Test_HTTP_403:
             assert item in resp.json()
 
     @responses.activate
-    def test_giphy_call(self, json_filename):
+    def test_giphy_api_call_standardized_returns(self, json_filename):
         if 'random' in json_filename:
             resp = giphy_call(call_type='random', api_key='abc')
             expected = {'call_type': '',
