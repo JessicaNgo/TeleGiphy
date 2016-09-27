@@ -31,25 +31,28 @@ def giphy_call(call_type='translate', phrase='doge', api_key=KEY, rating=''):
                      'image_url': '',
                      'phrase': '',
                      'meta': {}}
-    if call_type == 'translate':
-        resp = _gif_translate(string=phrase, api_key=api_key, rating=rating)
-        resp_json = resp.json()
-        standard_data['meta'] = resp_json['meta']
-        if resp.status_code == 200:
-            standard_data['call_type'] = 'translate'
-            standard_data['phrase'] = phrase
-            standard_data['image_url'] = resp_json['data']['images']['original']['url']
-        return standard_data
 
-    elif call_type == 'random':
-        resp = _gif_random(tag=phrase, api_key=api_key, rating=rating)
-        resp_json = resp.json()
+    if call_type == 'translate':
+        api_resp = _gif_translate(string=phrase, api_key=api_key, rating=rating)
+        resp_json = api_resp.json()
         standard_data['meta'] = resp_json['meta']
         if resp.status_code == 200:
-            standard_data['call_type'] = 'random'
-            standard_data['phrase'] = phrase
-            standard_data['image_url'] = resp_json['data']['image_url']
-        return standard_data
+            standard_data = standarize_data(standard_data, call_type, phrase,
+                                            resp_json['data']['images']['original']['url'])
+    elif call_type == 'random':
+        api_resp = _gif_random(tag=phrase, api_key=api_key, rating=rating)
+        resp_json = api_resp.json()
+        standard_data['meta'] = resp_json['meta']
+        if resp.status_code == 200:
+            standard_data = standarize_data(standard_data, call_type, phrase,
+                                            resp_json['data']['image_url'])
     else:
         standard_data['call_type'] = 'error'
-        return standard_data
+    return standard_data
+
+
+def standarize_data(data_dict, call, phrase, url):
+    data_dict['call_type'] = call
+    data_dict['phrase'] = phrase
+    data_dict['image_url'] = url
+    return data_dict
