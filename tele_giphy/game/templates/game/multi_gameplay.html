@@ -68,7 +68,7 @@
   <div class = "col-md-4 col-md-offset-4 text-center">
     <form action = "{% url 'game:pass_on' token %}" method = 'post'>
       {% csrf_token %}
-      {% if gif == "/static/img/giphy_static.gif" %}
+      {% if gif == "/static/img/giphy_static.gif" or gif == "" %}
         <button type="submit" class="btn btn-success" disabled="disabled">Pass GIF!</button>
       {% else %}
         <button type="submit" class="btn btn-success">Pass GIF!</button>
