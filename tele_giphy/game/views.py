@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 # Localfolder
-from .giphy import gif_random
+from .giphy import _gif_random as gif_random
 # from .auxiliary import _give_random_name, _attach_user_to_game, _delete_game, _login_user
 from .models import (
     HOTSEAT_MODE, MULTIPLAYER_MODE, Game, GameOverRecords, GameRound, UserGame,
