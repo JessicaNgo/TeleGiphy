@@ -22,7 +22,7 @@ def load_json(filename):
 
 
 @pytest.mark.parametrize("json_filename", ['translate_200.json', 'random_200.json'])
-class Test_giphy_api_call_valid_results:
+class TestGiphyApiCallValidResults:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
@@ -76,7 +76,7 @@ class Test_giphy_api_call_valid_results:
 
 # Tests giphy get 403
 @pytest.mark.parametrize("json_filename", ['translate_403.json', 'random_403.json'])
-class Test_giphy_api_call_invalid_api_key:
+class TestGiphyApiCallInvalidApiKey:
     # Sets up request fixture
     @pytest.fixture(autouse=True)
     def setUp(self, json_filename):
