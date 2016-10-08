@@ -358,7 +358,7 @@ def waiting_room(request, token):
         return HttpResponseRedirect(reverse('game:gameover', args=(token,)))
     else:
         game.current_round += 1
-        game.save()       
+        game.save()
         return HttpResponseRedirect(reverse('game:multi_game_lobby', args=(token,)))
 
 
