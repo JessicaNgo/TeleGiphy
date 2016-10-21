@@ -1,5 +1,6 @@
 from django.test import Client, TestCase, RequestFactory
 import unittest
+from game.models import Game
 
 c = Client()
 
@@ -55,14 +56,26 @@ class TestJoinGameResponses(TestCase):
 class TestPreGameRoomResponses(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
+        Game.objects.create(
+            token=1010,
+            game_active=True,
+            game_over=False,
+            current_round=1,
+            mode='hotseat')
 
     def test_get_pre_game_room_no_token_return_404(self):
-        response = c.get('/pre_game_room/')
+        response = c.get('/pre_game_room')
         self.assertEqual(response.status_code, 404)
 
     def test_get_pre_game_room_with_token_return_404(self):
         response = c.get('/pre_game_room/1010/')
         self.assertEqual(response.status_code, 200)
+
+    def test_post_put_pre_game_room_no_token_return_304(self):
+        response = c.post('/pre_game_room')
+        self.assertEqual(response.status_code, 404)
+        response = c.put('/pre_game_room')
+        self.assertEqual(response.status_code, 404)
 
     def test_post_put_pre_game_room_with_token_return_304(self):
         response = c.post('/pre_game_room/1010/')
@@ -71,34 +84,44 @@ class TestPreGameRoomResponses(TestCase):
         self.assertEqual(response.status_code, 304)
 
 
-class TestStartGameResponses(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-
-class TestChooseNameResponses(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-
-class TestGameplayContextResponses(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-
-class TestMultiGameplayContextResponses(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-
 class TestHotSeatGameplayResponses(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
+        Game.objects.create(
+            token=1010,
+            game_active=True,
+            game_over=False,
+            current_round=1,
+            mode='hotseat')
+
+    def test_get_hotseat_no_token_return_404(self):
+        response = c.get('/game_lobby/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_hotseat_with_token_return_200(self):
+        response = c.get('/game_lobby/1010/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_put_hotseat_with_token_return_304(self):
+        response = c.post('/game_lobby/1010/')
+        self.assertEqual(response.status_code, 304)
+        response = c.put('/game_lobby/1010/')
+        self.assertEqual(response.status_code, 304)
 
 
 class TestChooseNewGifResponses(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
+        Game.objects.create(
+            token=1010,
+            game_active=True,
+            game_over=False,
+            current_round=1,
+            mode='hotseat')
+
+    def test_get_new_gif_with_token_return_200(self):
+        response = c.get('/game_lobby/1010/choose_new_gif')
+        self.assertEqual(response.status_code, 200)
 
 
 class TestPassOnResponses(TestCase):
@@ -117,5 +140,28 @@ class TestWaitingRoomResponses(TestCase):
 
 
 class TestGameoverResponses(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+
+"""####### No URL endpoints ########"""
+
+
+class TestStartGameResponses(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+
+class TestChooseNameResponses(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+
+class TestGameplayContextResponses(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+
+class TestMultiGameplayContextResponses(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
